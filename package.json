@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "cdk": "cdk"
   },
   "devDependencies": {
@@ -21,6 +21,12 @@
     "typescript": "~3.7.2"
   },
   "dependencies": {
+    "@aws-cdk/aws-codebuild": "^1.31.0",
+    "@aws-cdk/aws-codecommit": "^1.31.0",
+    "@aws-cdk/aws-codedeploy": "^1.31.0",
+    "@aws-cdk/aws-codepipeline-actions": "^1.31.0",
+    "@aws-cdk/aws-lambda": "^1.31.0",
+    "@aws-cdk/aws-s3": "^1.31.0",
     "@aws-cdk/aws-sns": "1.31.0",
     "@aws-cdk/aws-sns-subscriptions": "1.31.0",
     "@aws-cdk/aws-sqs": "1.31.0",
