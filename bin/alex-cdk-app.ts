@@ -5,10 +5,23 @@ import {LambdaStack} from "../lib/lambda-stack";
 
 const app = new cdk.App();
 
-//const lambdaStack = new LambdaStack(app, 'LambdaStackId');
+const accountId = '835146719373';
+const region = 'eu-west-1';
+
+const lambdaStack = new LambdaStack(app, 'LambdaStackId', {
+    env: {
+        account: accountId,
+        region: region
+    },
+    instanceId: "123",
+});
+
 new AlexCdkAppStack(app, 'AlexCdkAppStackId', {
-    //lambdaCode: lambdaStack.lambdaCode,
-    env: {account: '835146719373' , region: 'eu-west-1'}
+    env: {
+        account: accountId,
+        region: region
+    },
+    helloWorldLambdaCode: lambdaStack.helloWorldLambdaCode,
 });
 
 app.synth();

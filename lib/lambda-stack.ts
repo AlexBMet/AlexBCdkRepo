@@ -1,30 +1,36 @@
-import * as codedeploy from '@aws-cdk/aws-codedeploy';
-import * as lambda from '@aws-cdk/aws-lambda';
-import { App, Stack, StackProps } from '@aws-cdk/core';
+import {Construct, Duration, Stack, StackProps} from "@aws-cdk/core";
+import {CfnParametersCode, Code, Function, Runtime} from "@aws-cdk/aws-lambda";
+
+export interface LambdaStackProps extends StackProps {
+    readonly instanceId: string;
+}
 
 export class LambdaStack extends Stack {
-    public readonly lambdaCode: lambda.CfnParametersCode;
 
-    constructor(app: App, id: string, props?: StackProps) {
-        super(app, id, props);
+    public readonly helloWorldLambdaCode: CfnParametersCode;
 
-        this.lambdaCode = lambda.Code.fromCfnParameters();
+    constructor(scope: Construct, id: string, props: LambdaStackProps) {
+        super(scope, id, props);
 
-        const func = new lambda.Function(this, 'Lambda', {
-            code: this.lambdaCode,
-            handler: 'index.handler',
-            runtime: lambda.Runtime.NODEJS_10_X,
-        });
+        this.helloWorldLambdaCode = Code.fromCfnParameters();
+        this.buildEventTriggeredLambdaFunction("HelloLambda", props.instanceId ,this.helloWorldLambdaCode);
+    }
 
-        const version = func.addVersion(new Date().toISOString());
-        const alias = new lambda.Alias(this, 'LambdaAlias', {
-            aliasName: 'Prod',
-            version,
-        });
+    private buildEventTriggeredLambdaFunction(name: string, instanceId: string, lambdaCode: CfnParametersCode): Function {
+        const lambdaFn = this.buildLambdaFunction(`${name}Function`, "app", lambdaCode, instanceId);
+        return lambdaFn;
+    }
 
-        new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
-            alias,
-            deploymentConfig: codedeploy.LambdaDeploymentConfig.LINEAR_10PERCENT_EVERY_1MINUTE,
+    private buildLambdaFunction(id: string, filename: string, code: CfnParametersCode, instanceId: string): Function {
+        return new Function(this, id, {
+            code: code,
+            handler: filename + '.lambdaHandler',
+            memorySize: 128,
+            timeout: Duration.seconds(300),
+            runtime: Runtime.NODEJS_10_X,
+            environment: {
+                INSTANCE_IDENTIFIER: instanceId
+            }
         });
     }
 }

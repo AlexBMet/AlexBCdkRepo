@@ -1,24 +1,103 @@
-import * as codebuild from '@aws-cdk/aws-codebuild';
-import * as codepipeline from '@aws-cdk/aws-codepipeline';
-import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
-import * as lambda from '@aws-cdk/aws-lambda';
-import {App, Stack, StackProps, SecretValue} from '@aws-cdk/core';
+import {Construct, SecretValue, Stack, StackProps} from "@aws-cdk/core";
+import {Artifact, Pipeline} from "@aws-cdk/aws-codepipeline";
+import {
+  CloudFormationCreateUpdateStackAction,
+  CodeBuildAction,
+  GitHubSourceAction
+} from "@aws-cdk/aws-codepipeline-actions";
+import { CfnParametersCode } from "@aws-cdk/aws-lambda";
+import { BuildSpec, PipelineProject, LinuxBuildImage } from "@aws-cdk/aws-codebuild";
 
-// export interface PipelineStackProps extends StackProps {
-//   readonly lambdaCode: lambda.CfnParametersCode;
-// }
+export interface PipelineStackProps extends StackProps {
+  readonly helloWorldLambdaCode: CfnParametersCode;
+}
 
 export class AlexCdkAppStack extends Stack {
-//  constructor(app: App, id: string, props: PipelineStackProps) {
-    constructor(app: App, id: string, props: StackProps) {
-    super(app, id, props);
+  constructor(scope: Construct, id: string, props: PipelineStackProps) {
+    super(scope, id, props);
 
-    const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
-      buildSpec: codebuild.BuildSpec.fromObject({
+    // Source action
+    const oauthToken = SecretValue.secretsManager('/alexcdk/secrets/github/token', {jsonField: 'alex-cdk-github-token'});
+
+    const sourceOutput = new Artifact("SourceOutput");
+    const sourceAction = new GitHubSourceAction({
+      actionName: 'Source',
+      owner: 'AlexBMet',
+      repo: 'AlexBCdkRepo',
+      branch: 'master',
+      oauthToken: oauthToken,
+      output: sourceOutput,
+      //trigger: codepipeline_actions.GitHubTrigger.POLL
+    });
+
+
+    // Build actions
+    const lambdaTemplateFileName = 'LambdaStack.template.json';
+    const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
+    const cdkBuildOutput = new Artifact('CdkBuildOutput');
+    const cdkBuildAction = new CodeBuildAction({
+      actionName: 'CDK_Build',
+      project: cdkBuild,
+      input: sourceOutput,
+      outputs: [cdkBuildOutput],
+    });
+
+    const helloWorldLambdaBuild = this.createLambdaBuildProject('ShutDownLambdaBuild', 'lambda/helloWorld');
+    const helloWorldLambdaBuildOutput = new Artifact('ShutDownLambdaBuildOutput');
+    const helloWorldLambdaBuildAction = new CodeBuildAction({
+      actionName: 'Hello_World_Lambda_Build',
+      project: helloWorldLambdaBuild,
+      input: sourceOutput,
+      outputs: [helloWorldLambdaBuildOutput],
+    });
+
+    // Deployment action
+    const deployAction = new CloudFormationCreateUpdateStackAction({
+      actionName: 'Lambda_Deploy',
+      templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
+      stackName: 'LambdaDeploymentStack',
+      adminPermissions: true,
+      parameterOverrides: {
+        ...props.helloWorldLambdaCode.assign(helloWorldLambdaBuildOutput.s3Location),
+      },
+      extraInputs: [helloWorldLambdaBuildOutput]
+    });
+
+
+    // Construct the pipeline
+    const pipelineName = "alex-cdk-pipeline";
+    const pipeline = new Pipeline(this, pipelineName, {
+      pipelineName: pipelineName,
+      stages: [
+        {
+          stageName: 'Source',
+          actions: [sourceAction],
+        },
+        {
+          stageName: 'Build',
+          actions: [ helloWorldLambdaBuildAction, cdkBuildAction],
+        },
+        {
+          stageName: 'Deploy',
+          actions: [deployAction],
+        }
+      ]
+    });
+
+    // Make sure the deployment role can get the artifacts from the S3 bucket
+    pipeline.artifactBucket.grantRead(deployAction.deploymentRole);
+  }
+
+  private createCDKBuildProject(id: string, templateFilename: string) {
+    return new PipelineProject(this, id, {
+      buildSpec: BuildSpec.fromObject({
         version: '0.2',
         phases: {
           install: {
-            commands: 'npm install',
+            commands: [
+              "npm install",
+              "npm install -g cdk",
+            ],
           },
           build: {
             commands: [
@@ -30,114 +109,30 @@ export class AlexCdkAppStack extends Stack {
         artifacts: {
           'base-directory': 'dist',
           files: [
-            'LambdaStack.template.json',
+            templateFilename,
           ],
         },
       }),
       environment: {
-        buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
+        buildImage: LinuxBuildImage.STANDARD_2_0,
       },
     });
-    // const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
-    //   buildSpec: codebuild.BuildSpec.fromObject({
-    //     version: '0.2',
-    //     phases: {
-    //       install: {
-    //         commands: [
-    //           'cd lambda',
-    //           'npm install',
-    //         ],
-    //       },
-    //       // build: {
-    //       //   commands: 'npm run build',
-    //       // },
-    //     },
-    //     artifacts: {
-    //       'base-directory': 'lambda',
-    //       files: [
-    //         'index.js',
-    //         'node_modules/**/*',
-    //       ],
-    //     },
-    //   }),
-    //   environment: {
-    //     buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
-    //   },
-    // });
+  }
 
-    const sourceOutput = new codepipeline.Artifact();
-    const cdkBuildOutput = new codepipeline.Artifact('CdkBuildOutput');
-    //const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
-
-    // new codebuild.GitHubSourceCredentials(this, 'CodeBuildGitHubCreds', {
-    //   accessToken: cdk.SecretValue.secretsManager('my-token'),
-    // });
-
-    //Connecting github to code pipeline for the first time
-    //https://github.com/aws/aws-cdk/issues/3515
-
-    // Read the secret from Secrets Manager
-    const sourceAction = new codepipeline_actions.GitHubSourceAction({
-      actionName: 'GitHub_Source',
-      owner: 'AlexBMet',
-      repo: 'AlexBCdkRepo',
-      oauthToken: SecretValue.secretsManager('/alexcdk/secrets/github/token', { jsonField : "alex-cdk-github-token"} ),
-      output: sourceOutput,
-      branch: 'master',
-      //variablesNamespace: 'AlexCdkNamespace',
-      trigger: codepipeline_actions.GitHubTrigger.POLL // default: 'WEBHOOK', 'NONE' is also possible for no Source trigger
-      // webhook: true, // optional, default: true if `webhookFilteres` were provided, false otherwise
-      // webhookFilters: [
-      //   codebuild.FilterGroup.inEventOf(codebuild.EventAction.PUSH).andBranchIs('master'),
-      // ], // optional, by default all pushes and Pull Requests will trigger a build
-
-      //Command line source creds
-      //aws codebuild import-source-credentials --server-type GITHUB --auth-type PERSONAL_ACCESS_TOKEN --token <token_value>
-
-    });
-
-
-    new codepipeline.Pipeline(this, 'Pipeline', {
-      stages: [
-        {
-          stageName: 'Source',
-          actions: [
-            sourceAction,
+  private createLambdaBuildProject(id: string, sourceCodeBaseDirectory: string) {
+    return new PipelineProject(this, id, {
+      buildSpec: BuildSpec.fromObject({
+        version: '0.2',
+        artifacts: {
+          'base-directory': sourceCodeBaseDirectory,
+          files: [
+            '*.js'
           ],
         },
-        {
-          stageName: 'Build',
-          actions: [
-            // new codepipeline_actions.CodeBuildAction({
-            //   actionName: 'Lambda_Build',
-            //   project: lambdaBuild,
-            //   input: sourceOutput,
-            //   outputs: [lambdaBuildOutput],
-            // }),
-            new codepipeline_actions.CodeBuildAction({
-              actionName: 'CDK_Build',
-              project: cdkBuild,
-              input: sourceOutput,
-              outputs: [cdkBuildOutput],
-            }),
-          ],
-        },
-        // {
-        //   stageName: 'Deploy',
-        //   actions: [
-        //     new codepipeline_actions.CloudFormationCreateUpdateStackAction({
-        //       actionName: 'Lambda_CFN_Deploy',
-        //       templatePath: cdkBuildOutput.atPath('LambdaStack.template.json'),
-        //       stackName: 'LambdaDeploymentStack',
-        //       adminPermissions: true,
-        //       parameterOverrides: {
-        //         ...props.lambdaCode.assign(lambdaBuildOutput.s3Location),
-        //       },
-        //       extraInputs: [lambdaBuildOutput],
-        //     }),
-        //   ],
-        // },
-      ],
-    });
+      }),
+      environment: {
+        buildImage: LinuxBuildImage.STANDARD_2_0,
+      },
+    })
   }
 }
