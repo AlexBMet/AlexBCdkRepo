@@ -8,7 +8,7 @@ const app = new cdk.App();
 //const lambdaStack = new LambdaStack(app, 'LambdaStackId');
 new AlexCdkAppStack(app, 'AlexCdkAppStackId', {
     //lambdaCode: lambdaStack.lambdaCode,
-    env: {account: '879552525854' , region: 'eu-west-1'}
+    env: {account: '835146719373' , region: 'eu-west-1'}
 });
 
 app.synth();
