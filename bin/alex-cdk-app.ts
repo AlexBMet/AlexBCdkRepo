@@ -5,9 +5,9 @@ import {LambdaStack} from "../lib/lambda-stack";
 
 const app = new cdk.App();
 
-const lambdaStack = new LambdaStack(app, 'LambdaStackId');
+//const lambdaStack = new LambdaStack(app, 'LambdaStackId');
 new AlexCdkAppStack(app, 'AlexCdkAppStackId', {
-    lambdaCode: lambdaStack.lambdaCode,
+    //lambdaCode: lambdaStack.lambdaCode,
     env: {account: '879552525854' , region: 'eu-west-1'}
 });
 
