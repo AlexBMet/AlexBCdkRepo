@@ -17,7 +17,7 @@ export class AlexCdkAppStack extends Stack {
     super(scope, id, props);
 
     // Source action
-    const oauthToken = SecretValue.secretsManager('/alexcdk/secrets/github/token', {jsonField: 'alex-cdk-github-token'});
+    const oauthToken = SecretValue.secretsManager('GitHubToken');
 
     const sourceOutput = new Artifact("SourceOutput");
     const sourceAction = new GitHubSourceAction({
