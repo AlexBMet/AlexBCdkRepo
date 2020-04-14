@@ -127,19 +127,24 @@ export class AlexCdkAppStack extends cdk.Stack {
     return new PipelineProject(this, id, {
       buildSpec: BuildSpec.fromObject({
         version: '0.2',
-          phases: {
-              install: {
-                  'runtime-versions': {
-                      'nodejs': 14,
-                  },
-              },
+        phases: {
+          install: {
+            commands: [
+              'cd lambda',
+              'npm install',
+            ],
           },
-        artifacts: {
-          'base-directory': sourceCodeBaseDirectory,
-          files: [
-            '*.js'
-          ],
+          build: {
+            commands: 'npm run build',
+          },
         },
+        artifacts: {
+          'base-directory': 'sourceCodeBaseDirectory',
+          files: [
+            '*.js',
+            'node_modules/**/*',
+          ],
+        }
       }),
       environment: {
         buildImage: LinuxBuildImage.STANDARD_2_0,
