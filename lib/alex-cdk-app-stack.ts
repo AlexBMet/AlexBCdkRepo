@@ -1,23 +1,25 @@
-import {Construct, SecretValue, Stack, StackProps} from "@aws-cdk/core";
+import * as cdk from "@aws-cdk/core";
+import {CfnParametersCode} from "@aws-cdk/aws-lambda";
 import {Artifact, Pipeline} from "@aws-cdk/aws-codepipeline";
 import {
   CloudFormationCreateUpdateStackAction,
   CodeBuildAction,
   GitHubSourceAction
 } from "@aws-cdk/aws-codepipeline-actions";
-import { CfnParametersCode } from "@aws-cdk/aws-lambda";
-import { BuildSpec, PipelineProject, LinuxBuildImage } from "@aws-cdk/aws-codebuild";
+import {BuildSpec, LinuxBuildImage, PipelineProject} from "@aws-cdk/aws-codebuild";
 
-export interface PipelineStackProps extends StackProps {
+export interface PipelineStackProps extends cdk.StackProps {
   readonly helloWorldLambdaCode: CfnParametersCode;
 }
 
-export class AlexCdkAppStack extends Stack {
-  constructor(scope: Construct, id: string, props: PipelineStackProps) {
+export class AlexCdkAppStack extends cdk.Stack {
+
+  constructor(scope: cdk.Construct, id: string, props: PipelineStackProps) {
     super(scope, id, props);
 
     // Source action
-    const oauthToken = SecretValue.secretsManager('GitHubToken');
+    const oauthToken = cdk.SecretValue.secretsManager('GitHubToken');
+    //const oauthToken = SecretValue.secretsManager('/automatic-aws-db-shutdown-cdk/github/token', {jsonField: 'github-token'});
 
     const sourceOutput = new Artifact("SourceOutput");
     const sourceAction = new GitHubSourceAction({
@@ -30,7 +32,6 @@ export class AlexCdkAppStack extends Stack {
       //trigger: codepipeline_actions.GitHubTrigger.POLL
     });
 
-
     // Build actions
     const lambdaTemplateFileName = 'LambdaStack.template.json';
     const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
@@ -42,7 +43,7 @@ export class AlexCdkAppStack extends Stack {
       outputs: [cdkBuildOutput],
     });
 
-    const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda/hello');
+    const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda/helloWorld');
     const helloWorldLambdaBuildOutput = new Artifact('HelloWorldLambdaBuildOutput');
     const helloWorldLambdaBuildAction = new CodeBuildAction({
       actionName: 'Hello_World_Lambda_Build',

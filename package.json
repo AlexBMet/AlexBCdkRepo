@@ -21,15 +21,10 @@
     "typescript": "~3.8.3"
   },
   "dependencies": {
-    "@aws-cdk/aws-codebuild": "^1.32.0",
-    "@aws-cdk/aws-codecommit": "^1.32.0",
-    "@aws-cdk/aws-codedeploy": "^1.32.0",
-    "@aws-cdk/aws-codepipeline-actions": "^1.32.0",
-    "@aws-cdk/aws-lambda": "^1.32.0",
-    "@aws-cdk/aws-s3": "^1.32.0",
-    "@aws-cdk/aws-sns": "1.32.0",
-    "@aws-cdk/aws-sns-subscriptions": "1.32.0",
-    "@aws-cdk/aws-sqs": "1.32.0",
+    "@aws-cdk/aws-codebuild": "1.32.0",
+    "@aws-cdk/aws-codepipeline": "1.32.0",
+    "@aws-cdk/aws-codepipeline-actions": "1.32.0",
+    "@aws-cdk/aws-lambda": "1.32.0",
     "@aws-cdk/core": "1.32.0"
   }
 }
