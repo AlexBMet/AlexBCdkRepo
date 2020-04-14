@@ -43,7 +43,7 @@ export class AlexCdkAppStack extends cdk.Stack {
       outputs: [cdkBuildOutput],
     });
 
-    const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda/helloWorld');
+    const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda/hello');
     const helloWorldLambdaBuildOutput = new Artifact('HelloWorldLambdaBuildOutput');
     const helloWorldLambdaBuildAction = new CodeBuildAction({
       actionName: 'Hello_World_Lambda_Build',
