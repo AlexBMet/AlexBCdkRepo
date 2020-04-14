@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import * as cdk from '@aws-cdk/core';
 import { AlexCdkAppStack } from '../lib/alex-cdk-app-stack';
 import {LambdaStack} from "../lib/lambda-stack";
+import {App} from "@aws-cdk/core";
 
-const app = new cdk.App();
+const app = new App();
 
 const accountId = '835146719373';
 const region = 'eu-west-1';

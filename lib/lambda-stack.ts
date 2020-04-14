@@ -1,15 +1,15 @@
-import * as cdk from "@aws-cdk/core";
+import {Construct, Duration, Stack, StackProps} from "@aws-cdk/core";
 import {CfnParametersCode, Code, Function, Runtime} from "@aws-cdk/aws-lambda";
 
-export interface LambdaStackProps extends cdk.StackProps {
+export interface LambdaStackProps extends StackProps {
     readonly instanceId: string;
 }
 
-export class LambdaStack extends cdk.Stack {
+export class LambdaStack extends Stack {
 
     public readonly helloWorldLambdaCode: CfnParametersCode;
 
-    constructor(scope: cdk.Construct, id: string, props: LambdaStackProps) {
+    constructor(scope: Construct, id: string, props: LambdaStackProps) {
         super(scope, id, props);
 
         this.helloWorldLambdaCode = Code.fromCfnParameters();
@@ -26,7 +26,7 @@ export class LambdaStack extends cdk.Stack {
             code: code,
             handler: filename + '.lambdaHandler',
             memorySize: 128,
-            timeout: cdk.Duration.seconds(300),
+            timeout: Duration.seconds(300),
             runtime: Runtime.NODEJS_12_X,
             environment: {
                 INSTANCE_IDENTIFIER: instanceId
