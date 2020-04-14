@@ -95,6 +95,9 @@ export class AlexCdkAppStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
+              'runtime-versions': {
+                  'nodejs': 14,
+              },
             commands: [
               "npm install",
               "npm install -g cdk",
@@ -124,6 +127,13 @@ export class AlexCdkAppStack extends cdk.Stack {
     return new PipelineProject(this, id, {
       buildSpec: BuildSpec.fromObject({
         version: '0.2',
+          phases: {
+              install: {
+                  'runtime-versions': {
+                      'nodejs': 14,
+                  },
+              },
+          },
         artifacts: {
           'base-directory': sourceCodeBaseDirectory,
           files: [
