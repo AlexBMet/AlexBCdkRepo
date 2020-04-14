@@ -24,10 +24,10 @@ export class LambdaStack extends Stack {
     private buildLambdaFunction(id: string, filename: string, code: CfnParametersCode, instanceId: string): Function {
         return new Function(this, id, {
             code: code,
-            handler: filename + '.lambdaHandler',
+            handler: filename + '.handler',
             memorySize: 128,
             timeout: Duration.seconds(300),
-            runtime: Runtime.NODEJS_10_X,
+            runtime: Runtime.NODEJS_12_X,
             environment: {
                 INSTANCE_IDENTIFIER: instanceId
             }
