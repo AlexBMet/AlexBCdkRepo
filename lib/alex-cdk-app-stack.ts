@@ -95,9 +95,6 @@ export class AlexCdkAppStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
-              'runtime-versions': {
-                  'nodejs': 14,
-              },
             commands: [
               "npm install",
               "npm install -g cdk",
@@ -130,7 +127,7 @@ export class AlexCdkAppStack extends cdk.Stack {
         phases: {
           install: {
             commands: [
-              'cd lambda',
+              'cd lambda/hello',
               'npm install',
             ],
           },
@@ -139,7 +136,7 @@ export class AlexCdkAppStack extends cdk.Stack {
           },
         },
         artifacts: {
-          'base-directory': 'sourceCodeBaseDirectory',
+          'base-directory': sourceCodeBaseDirectory,
           files: [
             '*.js',
             'node_modules/**/*',
