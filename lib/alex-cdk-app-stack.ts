@@ -130,22 +130,14 @@ export class AlexCdkAppStack extends cdk.Stack {
                   'runtime-versions': {
                       'nodejs': 10,
                   },
-                commands: [
-                  'cd lambda',
-                  'npm install',
-                ],
               },
-            build: {
-              commands: 'npm run build',
-            },
           },
         artifacts: {
-//          'type': 'zip',
+         // 'type': 'zip',
           'base-directory': 'lambda',
           files: [
-            'index.js',
-            'node_modules/**/*',
-          ],
+             '**/*',
+          ]
         }
       }),
       environment: {
