@@ -17,17 +17,17 @@ export class LambdaStack extends Stack {
     }
 
     private buildEventTriggeredLambdaFunction(name: string, instanceId: string, lambdaCode: CfnParametersCode): Function {
-        const lambdaFn = this.buildLambdaFunction(`${name}Function`, "app", lambdaCode, instanceId);
+        const lambdaFn = this.buildLambdaFunction(`${name}Function`, "index", lambdaCode, instanceId);
         return lambdaFn;
     }
 
     private buildLambdaFunction(id: string, filename: string, code: CfnParametersCode, instanceId: string): Function {
         return new Function(this, id, {
             code: code,
-            handler: filename + '.lambdaHandler',
+            handler: filename + '.handler',
             memorySize: 128,
             timeout: Duration.seconds(300),
-            runtime: Runtime.NODEJS_12_X,
+            runtime: Runtime.NODEJS_10_X,
             environment: {
                 INSTANCE_IDENTIFIER: instanceId
             }

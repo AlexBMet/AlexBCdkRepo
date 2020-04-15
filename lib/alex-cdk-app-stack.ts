@@ -33,7 +33,7 @@ export class AlexCdkAppStack extends cdk.Stack {
     });
 
     // Build actions
-    const lambdaTemplateFileName = 'LambdaStack.template.json';
+    const lambdaTemplateFileName = 'LambdaStackId.template.json';
     const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
     const cdkBuildOutput = new Artifact('CdkBuildOutput');
     const cdkBuildAction = new CodeBuildAction({
@@ -43,7 +43,7 @@ export class AlexCdkAppStack extends cdk.Stack {
       outputs: [cdkBuildOutput],
     });
 
-    const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda/hello');
+    const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda');
     const helloWorldLambdaBuildOutput = new Artifact('HelloWorldLambdaBuildOutput');
     const helloWorldLambdaBuildAction = new CodeBuildAction({
       actionName: 'Hello_World_Lambda_Build',
@@ -98,6 +98,7 @@ export class AlexCdkAppStack extends cdk.Stack {
             commands: [
               "npm install",
               "npm install -g cdk",
+              "npm install -g typescript",
             ],
           },
           build: {
@@ -110,7 +111,7 @@ export class AlexCdkAppStack extends cdk.Stack {
         artifacts: {
           'base-directory': 'dist',
           files: [
-            templateFilename,
+            'LambdaStackId.template.json',
           ],
         },
       }),
@@ -124,21 +125,25 @@ export class AlexCdkAppStack extends cdk.Stack {
     return new PipelineProject(this, id, {
       buildSpec: BuildSpec.fromObject({
         version: '0.2',
-        phases: {
-          install: {
-            commands: [
-              'cd lambda/hello',
-              'npm install',
-            ],
+          phases: {
+              install: {
+                  'runtime-versions': {
+                      'nodejs': 10,
+                  },
+                commands: [
+                  'cd lambda',
+                  'npm install',
+                ],
+              },
+            build: {
+              commands: 'npm run build',
+            },
           },
-          build: {
-            commands: 'npm run build',
-          },
-        },
         artifacts: {
-          'base-directory': sourceCodeBaseDirectory,
+//          'type': 'zip',
+          'base-directory': 'lambda',
           files: [
-            '*.js',
+            'index.js',
             'node_modules/**/*',
           ],
         }
