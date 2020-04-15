@@ -19,7 +19,6 @@ export class AlexCdkAppStack extends cdk.Stack {
 
     // Source action
     const oauthToken = cdk.SecretValue.secretsManager('GitHubToken');
-    //const oauthToken = SecretValue.secretsManager('/automatic-aws-db-shutdown-cdk/github/token', {jsonField: 'github-token'});
 
     const sourceOutput = new Artifact("SourceOutput");
     const sourceAction = new GitHubSourceAction({
