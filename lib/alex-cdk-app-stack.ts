@@ -126,17 +126,21 @@ export class AlexCdkAppStack extends cdk.Stack {
       buildSpec: BuildSpec.fromObject({
         version: '0.2',
           phases: {
-              install: {
-                  'runtime-versions': {
-                      'nodejs': 10,
-                  },
-              },
+            install: {
+                'runtime-versions': {
+                    'nodejs': 10,
+                },
+              commands: [
+                  'cd lambda',
+                  'echo $path',
+              ],
+            },
           },
         artifacts: {
          // 'type': 'zip',
           'base-directory': 'lambda',
           files: [
-             '**/*',
+             'index.js',
           ]
         }
       }),
