@@ -131,14 +131,14 @@ export class AlexCdkAppStack extends cdk.Stack {
                     'nodejs': 10,
                 },
               commands: [
-                  'ls',
+                'ls',
               ],
             },
           },
         artifacts: {
           //'discard-paths': 'yes',
          // 'type': 'zip',
-          'base-directory': 'cd $CODEBUILD_SRC_DIR/lambda',
+          'base-directory': 'lambda',
           files: [
              'index.js',
           ]
