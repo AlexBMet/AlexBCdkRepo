@@ -111,7 +111,7 @@ export class AlexCdkAppStack extends cdk.Stack {
         artifacts: {
           'base-directory': 'dist',
           files: [
-            'LambdaStackId.template.json',
+            templateFilename,
           ],
         },
       }),
@@ -136,9 +136,7 @@ export class AlexCdkAppStack extends cdk.Stack {
             },
           },
         artifacts: {
-          //'discard-paths': 'yes',
-         // 'type': 'zip',
-          'base-directory': 'lambda',
+          'base-directory': sourceCodeBaseDirectory,
           files: [
              'index.js',
           ]
