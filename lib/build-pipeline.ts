@@ -7,12 +7,16 @@ import {
   GitHubSourceAction
 } from "@aws-cdk/aws-codepipeline-actions";
 import {BuildSpec, LinuxBuildImage, PipelineProject} from "@aws-cdk/aws-codebuild";
+import {Effect, PolicyStatement} from "@aws-cdk/aws-iam";
 
 export interface PipelineStackProps extends cdk.StackProps {
   readonly helloWorldLambdaCode: CfnParametersCode;
+  readonly deployAccount?: string;
+  //readonly deploymentRoleArn?: string;
+
 }
 
-export class AlexCdkAppStack extends cdk.Stack {
+export class BuildPipeline extends cdk.Stack {
 
   constructor(scope: cdk.Construct, id: string, props: PipelineStackProps) {
     super(scope, id, props);
@@ -28,12 +32,20 @@ export class AlexCdkAppStack extends cdk.Stack {
       branch: 'master',
       oauthToken: oauthToken,
       output: sourceOutput,
-      //trigger: codepipeline_actions.GitHubTrigger.POLL
     });
 
     // Build actions
-    const lambdaTemplateFileName = 'LambdaStackId.template.json';
+    const lambdaTemplateFileName = 'LambdaStack.template.json';
     const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
+
+    // attach permissions to codebuild project role
+    cdkBuild.addToRolePolicy(new PolicyStatement({
+      effect: Effect.ALLOW,
+      resources: ['arn:aws:iam::835146719373:role/PipelineAutomationRole'],
+      actions: ['sts:AssumeRole']
+    }));
+
+
     const cdkBuildOutput = new Artifact('CdkBuildOutput');
     const cdkBuildAction = new CodeBuildAction({
       actionName: 'CDK_Build',
@@ -51,8 +63,9 @@ export class AlexCdkAppStack extends cdk.Stack {
       outputs: [helloWorldLambdaBuildOutput],
     });
 
-    // Deployment action
-    const deployAction = new CloudFormationCreateUpdateStackAction({
+    // Dev eployment action
+    const deployToDevAction = new CloudFormationCreateUpdateStackAction({
+      //account: props.deployAccount,
       actionName: 'Lambda_Deploy',
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
       stackName: 'LambdaDeploymentStack',
@@ -79,13 +92,13 @@ export class AlexCdkAppStack extends cdk.Stack {
         },
         {
           stageName: 'Deploy',
-          actions: [deployAction],
+          actions: [deployToDevAction],
         }
       ]
     });
 
     // Make sure the deployment role can get the artifacts from the S3 bucket
-    pipeline.artifactBucket.grantRead(deployAction.deploymentRole);
+    pipeline.artifactBucket.grantRead(deployToDevAction.deploymentRole);
   }
 
   private createCDKBuildProject(id: string, templateFilename: string) {
