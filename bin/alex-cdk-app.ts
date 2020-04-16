@@ -16,6 +16,13 @@ const lambdaStack = new LambdaStack(app, 'LambdaStackId', {
         account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
         region: process.env.CDK_DEPLOY_REGION || process.env.CDK_DEFAULT_REGION,
     },
+
+
+    // env: {
+    //     account: devAccountId,
+    //     region: region
+    // },
+
     instanceId: "123",
 });
 
@@ -24,6 +31,12 @@ new AlexCdkAppStack(app, 'AlexCdkAppStackId', {
         account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
         region: process.env.CDK_DEPLOY_REGION || process.env.CDK_DEFAULT_REGION,
     },
+
+    // env: {
+    //     account: devAccountId,
+    //     region: region
+    // },
+
     helloWorldLambdaCode: lambdaStack.helloWorldLambdaCode,
 });
 
