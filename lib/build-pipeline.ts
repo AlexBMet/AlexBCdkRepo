@@ -67,7 +67,6 @@ export class BuildPipeline extends cdk.Stack {
     // Dev deployment action
     const deployToDevAction = new CloudFormationCreateUpdateStackAction({
       actionName: 'Lambda_Deploy_To_Dev',
-      //account: '080660350717',
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
       stackName: 'AlexLambdaDeploymentStack',
       adminPermissions: true,
