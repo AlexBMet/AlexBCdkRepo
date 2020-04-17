@@ -7,7 +7,9 @@ import {
   GitHubSourceAction
 } from "@aws-cdk/aws-codepipeline-actions";
 import {BuildSpec, LinuxBuildImage, PipelineProject} from "@aws-cdk/aws-codebuild";
-import {Effect, PolicyStatement, Role} from "@aws-cdk/aws-iam";
+import {AccountPrincipal, Effect, PolicyStatement, Role} from "@aws-cdk/aws-iam";
+import {PhysicalName} from "@aws-cdk/core";
+import {LambdaStack} from "./lambda-stack";
 
 export interface PipelineStackProps extends cdk.StackProps {
   readonly helloWorldLambdaCode: CfnParametersCode;
@@ -62,13 +64,20 @@ export class BuildPipeline extends cdk.Stack {
       outputs: [helloWorldLambdaBuildOutput],
     });
 
+
+    // const deployActionRole = new Role(LambdaStack, 'ActionRole', {
+    //   assumedBy: new AccountPrincipal( '080660350717'),
+    //   // the role has to have a physical name set
+    //   roleName: PhysicalName.GENERATE_IF_NEEDED,
+    // });
+
     // Dev deployment action
     const deployToDevAction = new CloudFormationCreateUpdateStackAction({
       actionName: 'Lambda_Deploy',
-      //role: props.deployActionRole,
+      //role: deployActionRole,
       //account: '080660350717',
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
-      stackName: 'LambdaDeploymentStack',
+      stackName: 'AlexLambdaDeploymentStack',
       adminPermissions: true,
       parameterOverrides: {
         ...props.helloWorldLambdaCode.assign(helloWorldLambdaBuildOutput.s3Location),
