@@ -7,13 +7,13 @@ import {
   GitHubSourceAction
 } from "@aws-cdk/aws-codepipeline-actions";
 import {BuildSpec, LinuxBuildImage, PipelineProject} from "@aws-cdk/aws-codebuild";
-import {Effect, PolicyStatement} from "@aws-cdk/aws-iam";
+import {Effect, PolicyStatement, Role} from "@aws-cdk/aws-iam";
 
 export interface PipelineStackProps extends cdk.StackProps {
   readonly helloWorldLambdaCode: CfnParametersCode;
   readonly deployAccount?: string;
+  readonly deployActionRole: Role;
   //readonly deploymentRoleArn?: string;
-
 }
 
 export class BuildPipeline extends cdk.Stack {
@@ -38,10 +38,9 @@ export class BuildPipeline extends cdk.Stack {
     const lambdaTemplateFileName = 'LambdaStack.template.json';
     const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
 
-    // attach permissions to codebuild project role
     cdkBuild.addToRolePolicy(new PolicyStatement({
       effect: Effect.ALLOW,
-      resources: ['arn:aws:iam::835146719373:role/PipelineAutomationRole'],
+      resources: [props.deployActionRole.roleArn],
       actions: ['sts:AssumeRole']
     }));
 
@@ -63,9 +62,10 @@ export class BuildPipeline extends cdk.Stack {
       outputs: [helloWorldLambdaBuildOutput],
     });
 
-    // Dev eployment action
+    // Dev deployment action
     const deployToDevAction = new CloudFormationCreateUpdateStackAction({
       actionName: 'Lambda_Deploy',
+      role: props.deployActionRole,
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
       stackName: 'LambdaDeploymentStack',
       adminPermissions: true,
@@ -128,6 +128,7 @@ export class BuildPipeline extends cdk.Stack {
       }),
       environment: {
         buildImage: LinuxBuildImage.STANDARD_2_0,
+        //privileged: true
       },
     });
   }

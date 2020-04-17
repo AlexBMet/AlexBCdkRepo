@@ -26,23 +26,15 @@ const lambdaStack = new LambdaStack(app, 'LambdaStack', {
     instanceId: "123",
 });
 
-new BuildPipeline(app, 'PipelineStack', {
-    // env: {
-    //     account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
-    //     region: process.env.CDK_DEPLOY_REGION || process.env.CDK_DEFAULT_REGION,
-    // },
+const lambdaCode = lambdaStack.helloWorldLambdaCode;
+const deployActionRole = lambdaStack.deployActionRole;
 
+new BuildPipeline(app, 'PipelineStack', {
     env: buildAccount,
     deployAccount: devAccountId,
-    helloWorldLambdaCode: lambdaStack.helloWorldLambdaCode,
+    deployActionRole: deployActionRole,
+    helloWorldLambdaCode: lambdaCode,
 });
-
-// new BuildPipelineStack(app, "BuildPipelineStack", {
-//     env: buildAccount,
-//     nonProd: nonProdAccount,
-// });
-// new ReactFrontEndStack(app, "NonProdReactFrontEndStack", { env: nonProdAccount });
-// new ReactFrontEndStack(app, "ProdReactFrontEndStack", { env: ProdAccount });
 
 //Passing params into stack but not best practice
 //app.node.tryGetContext()
