@@ -44,7 +44,7 @@ new BuildPipeline(app, 'PipelineStack', {
 // new ReactFrontEndStack(app, "NonProdReactFrontEndStack", { env: nonProdAccount });
 // new ReactFrontEndStack(app, "ProdReactFrontEndStack", { env: ProdAccount });
 
-//Passing params into stack but
+//Passing params into stack but not best practice
 //app.node.tryGetContext()
 
 app.synth();
