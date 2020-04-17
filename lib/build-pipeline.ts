@@ -48,6 +48,13 @@ export class BuildPipeline extends cdk.Stack {
       outputs: [cdkBuildOutput],
     });
 
+    // attach permissions to codebuild project role
+    cdkBuild.addToRolePolicy(new PolicyStatement({
+      effect: Effect.ALLOW,
+      resources: ['arn:aws:iam::080660350717:role/PipelineAutomationRole'],
+      actions: ['sts:AssumeRole']
+    }));
+
     const helloWorldLambdaBuild = this.createLambdaBuildProject('HelloWorldLambdaBuild', 'lambda');
     const helloWorldLambdaBuildOutput = new Artifact('HelloWorldLambdaBuildOutput');
     const helloWorldLambdaBuildAction = new CodeBuildAction({
@@ -60,7 +67,7 @@ export class BuildPipeline extends cdk.Stack {
     // Dev deployment action
     const deployToDevAction = new CloudFormationCreateUpdateStackAction({
       actionName: 'Lambda_Deploy_To_Dev',
-      account: '080660350717',
+      //account: '080660350717',
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
       stackName: 'AlexLambdaDeploymentStack',
       adminPermissions: true,
