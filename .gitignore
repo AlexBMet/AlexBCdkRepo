@@ -1,11 +1,31 @@
-!jest.config.js
-*.d.ts
+# Artefacts
+**/cdk.out
+**/dist
+**/loader
+**/www
+
+# Compiled
+**/template.yaml
+
+# Dependencies
 node_modules
 
-# CDK asset staging directory
-.cdk.staging
-cdk.out
+# Environment
+**/.env
+**/.venv
 
-# Parcel build directories
-.cache
-.build
+# IDEs
+.idea
+.vscode
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+**/.stryker-tmp
+**/coverage
+**/reports

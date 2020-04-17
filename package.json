@@ -1,31 +1,26 @@
 {
-  "name": "alex-cdk-app",
-  "version": "0.1.0",
-  "bin": {
-    "alex-cdk-app": "bin/alex-cdk-app.js"
-  },
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "cdk": "cdk"
-  },
-  "devDependencies": {
-    "aws-cdk": "1.32.0",
-    "@aws-cdk/assert": "1.32.0",
-    "@types/jest": "^25.2.1",
-    "@types/node": "13.11.1",
-    "jest": "^25.3.0",
-    "ts-jest": "^25.3.1",
-    "ts-node": "^8.8.2",
-    "typescript": "~3.8.3"
-  },
-  "dependencies": {
-    "@aws-cdk/aws-codebuild": "1.32.0",
-    "@aws-cdk/aws-codepipeline": "1.32.0",
-    "@aws-cdk/aws-codepipeline-actions": "1.32.0",
-    "@aws-cdk/aws-iam": "1.32.0",
-    "@aws-cdk/aws-lambda": "1.32.0",
-    "@aws-cdk/core": "1.32.0"
-  }
+    "version": "0.1.0",
+    "license": "BSD-3-Clause",
+    "engines": {
+        "node": ">=10.0.0"
+    },
+    "private": true,
+    "workspaces": {
+        "nohoist": [
+            "**"
+        ],
+        "packages": [
+            "packages/*"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lerna run --concurrency 1 --stream precommit"
+        }
+    },
+    "devDependencies": {
+        "cross-env": "^7.0.2",
+        "husky": "^4.2.3",
+        "lerna": "^3.15.0"
+    }
 }
