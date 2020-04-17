@@ -22,18 +22,14 @@ const lambdaStack = new LambdaStack(app, 'LambdaStack', {
     // },
 
     env: buildAccount,
-
     instanceId: "123",
 });
 
-const lambdaCode = lambdaStack.helloWorldLambdaCode;
-const deployActionRole = lambdaStack.deployActionRole;
-
 new BuildPipeline(app, 'PipelineStack', {
     env: buildAccount,
-    deployAccount: devAccountId,
-    deployActionRole: deployActionRole,
-    helloWorldLambdaCode: lambdaCode,
+    deployAccount: mgmtAccountId,
+    //deployActionRole: lambdaStack.deployActionRole,
+    helloWorldLambdaCode: lambdaStack.helloWorldLambdaCode,
 });
 
 //Passing params into stack but not best practice

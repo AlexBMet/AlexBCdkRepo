@@ -12,7 +12,7 @@ import {Effect, PolicyStatement, Role} from "@aws-cdk/aws-iam";
 export interface PipelineStackProps extends cdk.StackProps {
   readonly helloWorldLambdaCode: CfnParametersCode;
   readonly deployAccount?: string;
-  readonly deployActionRole: Role;
+  //readonly deployActionRole: Role;
   //readonly deploymentRoleArn?: string;
 }
 
@@ -38,11 +38,11 @@ export class BuildPipeline extends cdk.Stack {
     const lambdaTemplateFileName = 'LambdaStack.template.json';
     const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
 
-    cdkBuild.addToRolePolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      resources: [props.deployActionRole.roleArn],
-      actions: ['sts:AssumeRole']
-    }));
+    // cdkBuild.addToRolePolicy(new PolicyStatement({
+    //   effect: Effect.ALLOW,
+    //   resources: [props.deployActionRole.roleArn],
+    //   actions: ['sts:AssumeRole']
+    // }));
 
 
     const cdkBuildOutput = new Artifact('CdkBuildOutput');
@@ -65,7 +65,8 @@ export class BuildPipeline extends cdk.Stack {
     // Dev deployment action
     const deployToDevAction = new CloudFormationCreateUpdateStackAction({
       actionName: 'Lambda_Deploy',
-      role: props.deployActionRole,
+      //role: props.deployActionRole,
+      //account: '080660350717',
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
       stackName: 'LambdaDeploymentStack',
       adminPermissions: true,
