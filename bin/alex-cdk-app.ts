@@ -11,6 +11,7 @@ const mgmtAccountId = '835146719373'; //mgmt
 const devAccountId = '080660350717'; //dev
 const region = 'eu-west-1';
 
+// arn:aws:iam::835146719373:role/PipelineAutomationRole
 
 const buildAccount = { account: "835146719373", region: region };
 const devAccount = { account: "080660350717", region: region };

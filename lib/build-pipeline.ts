@@ -40,13 +40,6 @@ export class BuildPipeline extends cdk.Stack {
     const lambdaTemplateFileName = 'LambdaStack.template.json';
     const cdkBuild = this.createCDKBuildProject('CdkBuild', lambdaTemplateFileName);
 
-    // cdkBuild.addToRolePolicy(new PolicyStatement({
-    //   effect: Effect.ALLOW,
-    //   resources: [props.deployActionRole.roleArn],
-    //   actions: ['sts:AssumeRole']
-    // }));
-
-
     const cdkBuildOutput = new Artifact('CdkBuildOutput');
     const cdkBuildAction = new CodeBuildAction({
       actionName: 'CDK_Build',
@@ -64,18 +57,10 @@ export class BuildPipeline extends cdk.Stack {
       outputs: [helloWorldLambdaBuildOutput],
     });
 
-
-    // const deployActionRole = new Role(LambdaStack, 'ActionRole', {
-    //   assumedBy: new AccountPrincipal( '080660350717'),
-    //   // the role has to have a physical name set
-    //   roleName: PhysicalName.GENERATE_IF_NEEDED,
-    // });
-
     // Dev deployment action
     const deployToDevAction = new CloudFormationCreateUpdateStackAction({
-      actionName: 'Lambda_Deploy',
-      //role: deployActionRole,
-      //account: '080660350717',
+      actionName: 'Lambda_Deploy_To_Dev',
+      account: '080660350717',
       templatePath: cdkBuildOutput.atPath(lambdaTemplateFileName),
       stackName: 'AlexLambdaDeploymentStack',
       adminPermissions: true,
