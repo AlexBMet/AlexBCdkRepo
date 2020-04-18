@@ -1,0 +1,49 @@
+name: Integrate
+
+on:
+    push:
+        branches:
+            - '*'
+            - '!master'
+    pull_request:
+        types: [opened, reopened]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        env:
+            CDK_DIRECTORY: packages/cdk
+            LAMBDA_DIRECTORY: packages/lambda
+        timeout-minutes: 5
+        strategy:
+            matrix:
+                node-version: [12.x]
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v1
+            -   name: Setup Node
+                uses: actions/setup-node@v1
+                with:
+                    node-version: ${{ matrix.node-version }}
+            -   name: Install dependencies
+                run: |
+                    yarn install
+            -   name: Audit
+                run: |
+                    yarn audit
+            -   name: Lint CDK
+                run: |
+                    yarn run lint.ci
+                working-directory: ${{env.CDK_DIRECTORY}}
+            -   name: Test CDK
+                run: |
+                    yarn test
+                working-directory: ${{env.CDK_DIRECTORY}}
+            -   name: Lint Lambda
+                run: |
+                    yarn run lint.ci
+                working-directory: ${{env.LAMBDA_DIRECTORY}}
+            -   name: Test Lambda
+                run: |
+                    yarn test
+                working-directory: ${{env.LAMBDA_DIRECTORY}}
