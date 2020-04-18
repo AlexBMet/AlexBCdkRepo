@@ -91,8 +91,6 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'cd $CODEBUILD_SRC_DIR/packages/cdk',
-							'yarn lint.ci',
-							'yarn test',
 							'cdk synth CrossAccountBucket > bucket.template.yaml',
 							'cdk synth TypeScriptLambda > lambda.template.yaml',
 							'cdk synth DynamoDbTable > dynamodb.template.yaml'
@@ -128,8 +126,6 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'cd $CODEBUILD_SRC_DIR/packages/lambda',
-							'yarn lint.ci',
-							'yarn test',
 							'yarn build',
 							'cd $CODEBUILD_SRC_DIR',
 							'yarn install --production --ignore-scripts --prefer-offline'
