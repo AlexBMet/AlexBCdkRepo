@@ -10,6 +10,7 @@
 		"build": "tsc",
 		"lint": "tslint -c tslint.json src/**/*.{tsx,ts} --fix",
 		"lint.ci": "tslint -c tslint.json src/**/*.{tsx,ts}",
+        "precommit": "yarn audit && yarn lint && yarn test",
 		"test": "jest --config=jest.config.json"
 	},
 	"dependencies": {},

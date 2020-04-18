@@ -11,9 +11,11 @@
     },
     "scripts": {
         "build": "tsc",
+        "cdk": "cdk",
         "lint": "tslint -c tslint.json src/**/*.{tsx,ts} --fix",
         "lint.ci": "tslint -c tslint.json src/**/*.{tsx,ts}",
-        "cdk": "cdk"
+        "precommit": "yarn audit && yarn lint",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
         "@aws-cdk/aws-cloudformation": "1.32.0",

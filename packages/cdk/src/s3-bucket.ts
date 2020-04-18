@@ -1,12 +1,9 @@
 import {CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag} from '@aws-cdk/core';
 import {Bucket} from '@aws-cdk/aws-s3';
 
-export interface Props extends StackProps {
-}
-
 export class CrossAccountBucket extends Stack {
 
-	constructor(scope: Construct, id: string, props: Props) {
+	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
 
 		const environmentParameter = new CfnParameter(this, 'Environment', {

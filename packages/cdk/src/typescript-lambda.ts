@@ -2,12 +2,9 @@ import {CfnParameter, Construct, Duration, Stack, StackProps, Tag} from '@aws-cd
 import {Code, Function, Runtime, Tracing} from '@aws-cdk/aws-lambda';
 import {LogGroup, RetentionDays} from '@aws-cdk/aws-logs';
 
-export interface Props extends StackProps {
-}
-
 export class TypescriptLambda extends Stack {
 
-	constructor(scope: Construct, id: string, props: Props) {
+	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
 
 		const environmentParameter = new CfnParameter(this, 'Environment', {
@@ -44,6 +41,7 @@ export class TypescriptLambda extends Stack {
 		const stack = Stack.of(this);
 		const resourcePrefix = `${uniquePrefixParameter.value}-${environmentParameter.value}-${stack.region}`;
 
+		// tslint:disable-next-line:function-constructor
 		const lambdaFunction = new Function(this, 'TypeScriptLambda', {
 			code: Code.fromInline('exports.handler = function(event, ctx, cb) { return cb(null, "hi"); }'),
 			description: 'TBC',

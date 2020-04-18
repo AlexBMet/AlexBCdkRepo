@@ -1,21 +1,17 @@
 import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
 import {Artifact, Pipeline} from '@aws-cdk/aws-codepipeline';
 import {
-	CloudFormationCreateUpdateStackAction, CloudFormationDeleteStackAction,
+	CloudFormationCreateUpdateStackAction,
+	CloudFormationDeleteStackAction,
 	CodeBuildAction,
-	GitHubSourceAction, ManualApprovalAction
+	GitHubSourceAction,
+	ManualApprovalAction
 } from '@aws-cdk/aws-codepipeline-actions';
 import {BuildSpec, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild';
-import {
-	AccountPrincipal,
-	AccountRootPrincipal, AnyPrincipal,
-	Effect,
-	PolicyStatement,
-	Role,
-	ServicePrincipal
-} from '@aws-cdk/aws-iam';
+import {AccountPrincipal, AnyPrincipal, Effect, PolicyStatement, Role, ServicePrincipal} from '@aws-cdk/aws-iam';
 import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
 import {Key} from '@aws-cdk/aws-kms';
+import {CloudFormationCapabilities} from '@aws-cdk/aws-cloudformation';
 
 // export interface Props extends StackProps {
 // 	readonly deploymentType: 'feature' | 'release';
@@ -26,13 +22,9 @@ import {Key} from '@aws-cdk/aws-kms';
 // 	readonly uniquePrefix: string;
 // }
 
-
-export interface Props extends StackProps {
-}
-
 export class DeploymentPipeline extends Stack {
 
-	constructor(scope: Construct, id: string, props: Props) {
+	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
 
 		const devAccountIdParameter = new CfnParameter(this, 'DevAccountId', {
@@ -187,6 +179,7 @@ export class DeploymentPipeline extends Stack {
 							account: '080660350717',
 							actionName: 'DeployTypeScriptLambda',
 							adminPermissions: false,
+							capabilities: [CloudFormationCapabilities.NAMED_IAM],
 							deploymentRole: devPipelineAutomationRole,
 							parameterOverrides: {
 								'Environment': 'dev',
@@ -210,12 +203,20 @@ export class DeploymentPipeline extends Stack {
 							runOrder: 1
 						}),
 						new CloudFormationDeleteStackAction({
-							actionName: 'TeardownTypeScriptLambda',
+							actionName: 'TeardownS3Bucket',
 							adminPermissions: false,
 							deploymentRole: devPipelineAutomationRole,
 							role: devPipelineAutomationRole,
 							runOrder: 2,
 							stackName: `${resourcePrefix}-cross-account-bucket`,
+						}),
+						new CloudFormationDeleteStackAction({
+							actionName: 'TeardownTypeScriptLambda',
+							adminPermissions: false,
+							deploymentRole: devPipelineAutomationRole,
+							role: devPipelineAutomationRole,
+							runOrder: 2,
+							stackName: `${resourcePrefix}-typescript-lambda`,
 						})
 					],
 					stageName: 'DevTeardown'
