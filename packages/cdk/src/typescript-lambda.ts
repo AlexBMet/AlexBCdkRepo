@@ -1,5 +1,5 @@
 import {CfnParameter, Construct, Duration, Stack, StackProps, Tag} from '@aws-cdk/core';
-import {Code, Function, Runtime, Tracing} from '@aws-cdk/aws-lambda';
+import {CfnParametersCode, Code, Function, Runtime, Tracing} from '@aws-cdk/aws-lambda';
 import {LogGroup, RetentionDays} from '@aws-cdk/aws-logs';
 
 export class TypescriptLambda extends Stack {
@@ -28,6 +28,16 @@ export class TypescriptLambda extends Stack {
 			description: 'TBC'
 		});
 
+		const sourceBucketNameParameter = new CfnParameter(this, 'SourceBucketName', {
+			description: 'TBC',
+			type: 'String'
+		});
+
+		const sourceObjectKeyParameter = new CfnParameter(this, 'SourceObjectKey', {
+			description: 'TBC',
+			type: 'String'
+		});
+
 		const uniquePrefixParameter = new CfnParameter(this, 'UniquePrefix', {
 			type: 'String',
 			description: 'TBC'
@@ -43,10 +53,13 @@ export class TypescriptLambda extends Stack {
 
 		// tslint:disable-next-line:function-constructor
 		const lambdaFunction = new Function(this, 'TypeScriptLambda', {
-			code: Code.fromInline('exports.handler = function(event, ctx, cb) { return cb(null, "hi"); }'),
+			code: Code.fromCfnParameters({
+				bucketNameParam: sourceBucketNameParameter,
+				objectKeyParam: sourceObjectKeyParameter
+			}),
 			description: 'TBC',
 			functionName: `${resourcePrefix}-typescript-lambda`,
-			handler: 'index.handler',
+			handler: 'dist/index.handler',
 			memorySize: 128,
 			runtime: Runtime.NODEJS_12_X,
 			timeout: Duration.seconds(30),
