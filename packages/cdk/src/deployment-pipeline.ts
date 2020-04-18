@@ -1,4 +1,4 @@
-import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
+import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, Tag} from '@aws-cdk/core';
 import {Artifact, Pipeline} from '@aws-cdk/aws-codepipeline';
 import {
 	CloudFormationCreateUpdateStackAction,
@@ -7,12 +7,11 @@ import {
 	GitHubSourceAction,
 	ManualApprovalAction
 } from '@aws-cdk/aws-codepipeline-actions';
-import {BuildSpec, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild';
+import {BuildSpec, ComputeType, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild';
 import {AccountPrincipal, AnyPrincipal, Effect, PolicyStatement, Role, ServicePrincipal} from '@aws-cdk/aws-iam';
 import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
 import {Key} from '@aws-cdk/aws-kms';
 import {CloudFormationCapabilities} from '@aws-cdk/aws-cloudformation';
-import {CfnParametersCode} from '@aws-cdk/aws-lambda';
 
 // export interface Props extends StackProps {
 // 	readonly deploymentType: 'feature' | 'release';
@@ -109,6 +108,8 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'cd $CODEBUILD_SRC_DIR/packages/cdk',
+							'yarn lint.ci',
+							'yarn test',
 							'cdk synth CrossAccountBucket > bucket.template.yaml',
 							'cdk synth TypeScriptLambda > lambda.template.yaml',
 							'cdk synth DynamoDbTable > dynamodb.template.yaml'
@@ -126,6 +127,7 @@ export class DeploymentPipeline extends Stack {
 			}),
 			environment: {
 				buildImage: LinuxBuildImage.STANDARD_2_0,
+				computeType: ComputeType.MEDIUM
 			},
 			projectName: `${resourcePrefix}-cdk-build`,
 			role: mgmtPipelineAutomationRole
@@ -143,6 +145,8 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'cd $CODEBUILD_SRC_DIR/packages/lambda',
+							'yarn lint.ci',
+							'yarn test',
 							'yarn build',
 							'cd $CODEBUILD_SRC_DIR',
 							'yarn install --production --ignore-scripts --prefer-offline'
@@ -159,6 +163,7 @@ export class DeploymentPipeline extends Stack {
 			}),
 			environment: {
 				buildImage: LinuxBuildImage.STANDARD_2_0,
+				computeType: ComputeType.MEDIUM
 			},
 			projectName: `${resourcePrefix}-typescript-lambda-build`,
 			role: mgmtPipelineAutomationRole
@@ -192,7 +197,6 @@ export class DeploymentPipeline extends Stack {
 							project: cdkBuild,
 							input: infrastructureSourceOutput,
 							outputs: [cdkBuildOutput],
-							role: mgmtPipelineAutomationRole,
 							runOrder: 1
 						}),
 						new CodeBuildAction({
@@ -200,7 +204,6 @@ export class DeploymentPipeline extends Stack {
 							project: typeScriptLambdaBuild,
 							input: infrastructureSourceOutput,
 							outputs: [typeScriptLambdaBuildOutput],
-							role: mgmtPipelineAutomationRole,
 							runOrder: 2
 						})
 					]
@@ -222,7 +225,7 @@ export class DeploymentPipeline extends Stack {
 							role: devPipelineAutomationRole,
 							runOrder: 1,
 							stackName: `${resourcePrefix}-dynamodb-table`,
-							templatePath: typeScriptLambdaBuildOutput.atPath('dynamodb.template.yaml')
+							templatePath: cdkBuildOutput.atPath('dynamodb.template.yaml')
 						}),
 						new CloudFormationCreateUpdateStackAction({
 							account: '080660350717',
@@ -235,14 +238,14 @@ export class DeploymentPipeline extends Stack {
 								'ServiceCode': `${serviceCodeParameter.value}`,
 								'ServiceName': `${serviceNameParameter.value}`,
 								'ServiceOwner': `${serviceOwnerParameter.value}`,
-								'SourceBucketName': `${typeScriptLambdaBuildOutput.s3Location.bucketName}`,
-								'SourceObjectKey': `${typeScriptLambdaBuildOutput.s3Location.objectKey}`,
+								'SourceBucketName': `${typeScriptLambdaBuildOutput.bucketName}`,
+								'SourceObjectKey': `${typeScriptLambdaBuildOutput.objectKey}`,
 								'UniquePrefix': `${uniquePrefixParameter.value}`
 							},
 							role: devPipelineAutomationRole,
 							runOrder: 2,
 							stackName: `${resourcePrefix}-typescript-lambda`,
-							templatePath: typeScriptLambdaBuildOutput.atPath('lambda.template.yaml')
+							templatePath: cdkBuildOutput.atPath('lambda.template.yaml')
 						}),
 						new CloudFormationCreateUpdateStackAction({
 							account: '080660350717',
@@ -259,7 +262,7 @@ export class DeploymentPipeline extends Stack {
 							role: devPipelineAutomationRole,
 							runOrder: 3,
 							stackName: `${resourcePrefix}-cross-account-bucket`,
-							templatePath: typeScriptLambdaBuildOutput.atPath('bucket.template.yaml')
+							templatePath: cdkBuildOutput.atPath('bucket.template.yaml')
 						})
 					],
 					stageName: 'DeployToDev'
