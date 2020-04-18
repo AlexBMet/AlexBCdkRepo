@@ -1,4 +1,5 @@
-import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, Tag} from '@aws-cdk/core';
+import {CloudFormationCapabilities} from '@aws-cdk/aws-cloudformation';
+import {BuildSpec, ComputeType, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild';
 import {Artifact, Pipeline} from '@aws-cdk/aws-codepipeline';
 import {
 	CloudFormationCreateUpdateStackAction,
@@ -7,89 +8,71 @@ import {
 	GitHubSourceAction,
 	ManualApprovalAction
 } from '@aws-cdk/aws-codepipeline-actions';
-import {BuildSpec, ComputeType, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild';
 import {AccountPrincipal, AnyPrincipal, Effect, PolicyStatement, Role, ServicePrincipal} from '@aws-cdk/aws-iam';
-import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
 import {Key} from '@aws-cdk/aws-kms';
-import {CloudFormationCapabilities} from '@aws-cdk/aws-cloudformation';
-
-// export interface Props extends StackProps {
-// 	readonly deploymentType: 'feature' | 'release';
-// 	readonly mgmtAccountId: string;
-// 	readonly devAccountId: string;
-// 	readonly ciAccountId: string;
-// 	readonly sourceBranch: string;
-// 	readonly uniquePrefix: string;
-// }
+import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
+import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, Tag} from '@aws-cdk/core';
 
 export class DeploymentPipeline extends Stack {
 
 	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
 
-		const devAccountIdParameter = new CfnParameter(this, 'DevAccountId', {
+		const STACK = Stack.of(this);
+		const DEV_ACCOUNT = new CfnParameter(this, 'DevAccountId', {
 			type: 'String',
 			default: '080660350717',
 			description: 'TBC'
 		});
-
-		const deploymentTypeParameter = new CfnParameter(this, 'DeploymentType', {
+		const DEPLOYMENT_TYPE = new CfnParameter(this, 'DeploymentType', {
 			allowedValues: ['feature', 'release'],
 			type: 'String',
 			default: 'feature',
 			description: 'TBC'
 		});
-
-		const serviceCodeParameter = new CfnParameter(this, 'ServiceCode', {
+		const SERVICE_CODE = new CfnParameter(this, 'ServiceCode', {
 			type: 'String',
 			description: 'TBC'
 		});
-
-		const serviceNameParameter = new CfnParameter(this, 'ServiceName', {
+		const SERVICE_NAME = new CfnParameter(this, 'ServiceName', {
 			type: 'String',
 			description: 'TBC'
 		});
-
-		const serviceOwnerParameter = new CfnParameter(this, 'ServiceOwner', {
+		const SERVICE_OWNER = new CfnParameter(this, 'ServiceOwner', {
 			type: 'String',
 			description: 'TBC'
 		});
-
-		const sourceBranchParameter = new CfnParameter(this, 'SourceBranch', {
+		const SOURCE_BRANCH = new CfnParameter(this, 'SourceBranch', {
 			type: 'String',
 			default: 'master',
 			description: 'TBC'
 		});
-
-		const uniquePrefixParameter = new CfnParameter(this, 'UniquePrefix', {
+		const UNIQUE_PREFIX = new CfnParameter(this, 'UniquePrefix', {
+			description: 'TBC',
 			type: 'String',
-			description: 'TBC'
 		});
 
-		Tag.add(this, 'ServiceCode', `${serviceCodeParameter.value}`);
-		Tag.add(this, 'ServiceName', `${serviceNameParameter.value}`);
-		Tag.add(this, 'ServiceOwner', `${serviceOwnerParameter.value}`);
+		const PREFIX = `${UNIQUE_PREFIX.value}-${DEPLOYMENT_TYPE.value}-${STACK.region}`;
 
-		const stack = Stack.of(this);
-		const resourcePrefix = `${uniquePrefixParameter.value}-${deploymentTypeParameter.value}-${stack.region}`;
+		Tag.add(this, 'Deployment', `${DEPLOYMENT_TYPE.value}`);
+		Tag.add(this, 'ServiceCode', `${SERVICE_CODE.value}`);
+		Tag.add(this, 'ServiceName', `${SERVICE_NAME.value}`);
+		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
-		// Role definitions
-		const devPipelineAutomationRole = Role.fromRoleArn(this, 'TypeScriptLambdaContextRole', `arn:aws:iam::${devAccountIdParameter.value}:role/PipelineAutomationRole`);
-		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'DeploymentPipelineRole', `arn:aws:iam::${stack.account}:role/PipelineAutomationRole`);
-
-		// Source resources
+		const devPipelineAutomationRole = Role.fromRoleArn(this, 'TypeScriptLambdaContextRole', `arn:aws:iam::${DEV_ACCOUNT.value}:role/PipelineAutomationRole`);
+		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'DeploymentPipelineRole', `arn:aws:iam::${STACK.account}:role/PipelineAutomationRole`);
 		const oauthToken = SecretValue.secretsManager('GitHubToken');
 		const infrastructureSourceOutput = new Artifact('SourceOutput');
 
 		const encryptionKey = new Key(this, 'FeatureKMSKey', {
-			alias: `alias/${uniquePrefixParameter.value}/${stack.region}/feature/key`,
+			alias: `alias/${UNIQUE_PREFIX.value}/${STACK.region}/feature/key`,
 			description: 'KMS key for the feature pipeline',
 			enableKeyRotation: false,
 			removalPolicy: RemovalPolicy.DESTROY
 		});
 
 		const artifactBucket = new Bucket(this, 'ArtifactBucket', {
-			bucketName: `${resourcePrefix}-artifact-bucket`,
+			bucketName: `${PREFIX}-artifact-bucket`,
 			encryption: BucketEncryption.KMS,
 			encryptionKey,
 			removalPolicy: RemovalPolicy.DESTROY
@@ -126,10 +109,10 @@ export class DeploymentPipeline extends Stack {
 				}
 			}),
 			environment: {
-				buildImage: LinuxBuildImage.STANDARD_2_0,
+				buildImage: LinuxBuildImage.STANDARD_3_0,
 				computeType: ComputeType.MEDIUM
 			},
-			projectName: `${resourcePrefix}-cdk-build`,
+			projectName: `${PREFIX}-cdk-build`,
 			role: mgmtPipelineAutomationRole
 		});
 
@@ -162,10 +145,10 @@ export class DeploymentPipeline extends Stack {
 				}
 			}),
 			environment: {
-				buildImage: LinuxBuildImage.STANDARD_2_0,
+				buildImage: LinuxBuildImage.STANDARD_3_0,
 				computeType: ComputeType.MEDIUM
 			},
-			projectName: `${resourcePrefix}-typescript-lambda-build`,
+			projectName: `${PREFIX}-typescript-lambda-build`,
 			role: mgmtPipelineAutomationRole
 		});
 
@@ -174,7 +157,7 @@ export class DeploymentPipeline extends Stack {
 
 		new Pipeline(this, 'DeploymentPipeline', {
 			artifactBucket,
-			pipelineName: `${resourcePrefix}-deployment-pipeline`,
+			pipelineName: `${PREFIX}-deployment-pipeline`,
 			restartExecutionOnUpdate: false,
 			role: mgmtPipelineAutomationRole,
 			stages: [
@@ -184,7 +167,7 @@ export class DeploymentPipeline extends Stack {
 						actionName: 'Source',
 						owner: 'AlexBMet',
 						repo: 'AlexBCdkRepo',
-						branch: `${sourceBranchParameter.value}`,
+						branch: `${SOURCE_BRANCH.value}`,
 						oauthToken,
 						output: infrastructureSourceOutput,
 					})],
@@ -217,14 +200,14 @@ export class DeploymentPipeline extends Stack {
 							deploymentRole: devPipelineAutomationRole,
 							parameterOverrides: {
 								'Environment': 'dev',
-								'ServiceCode': `${serviceCodeParameter.value}`,
-								'ServiceName': `${serviceNameParameter.value}`,
-								'ServiceOwner': `${serviceOwnerParameter.value}`,
-								'UniquePrefix': `${uniquePrefixParameter.value}`
+								'ServiceCode': `${SERVICE_CODE.value}`,
+								'ServiceName': `${SERVICE_NAME.value}`,
+								'ServiceOwner': `${SERVICE_OWNER.value}`,
+								'UniquePrefix': `${UNIQUE_PREFIX.value}`
 							},
 							role: devPipelineAutomationRole,
 							runOrder: 1,
-							stackName: `${resourcePrefix}-dynamodb-table`,
+							stackName: `${PREFIX}-dynamodb-table`,
 							templatePath: cdkBuildOutput.atPath('dynamodb.template.yaml')
 						}),
 						new CloudFormationCreateUpdateStackAction({
@@ -233,18 +216,19 @@ export class DeploymentPipeline extends Stack {
 							adminPermissions: false,
 							capabilities: [CloudFormationCapabilities.NAMED_IAM],
 							deploymentRole: devPipelineAutomationRole,
+							extraInputs: [typeScriptLambdaBuildOutput],
 							parameterOverrides: {
 								'Environment': 'dev',
-								'ServiceCode': `${serviceCodeParameter.value}`,
-								'ServiceName': `${serviceNameParameter.value}`,
-								'ServiceOwner': `${serviceOwnerParameter.value}`,
+								'ServiceCode': `${SERVICE_CODE.value}`,
+								'ServiceName': `${SERVICE_NAME.value}`,
+								'ServiceOwner': `${SERVICE_OWNER.value}`,
 								'SourceBucketName': `${typeScriptLambdaBuildOutput.bucketName}`,
 								'SourceObjectKey': `${typeScriptLambdaBuildOutput.objectKey}`,
-								'UniquePrefix': `${uniquePrefixParameter.value}`
+								'UniquePrefix': `${UNIQUE_PREFIX.value}`
 							},
 							role: devPipelineAutomationRole,
 							runOrder: 2,
-							stackName: `${resourcePrefix}-typescript-lambda`,
+							stackName: `${PREFIX}-typescript-lambda`,
 							templatePath: cdkBuildOutput.atPath('lambda.template.yaml')
 						}),
 						new CloudFormationCreateUpdateStackAction({
@@ -254,14 +238,14 @@ export class DeploymentPipeline extends Stack {
 							deploymentRole: devPipelineAutomationRole,
 							parameterOverrides: {
 								'Environment': 'dev',
-								'ServiceCode': `${serviceCodeParameter.value}`,
-								'ServiceName': `${serviceNameParameter.value}`,
-								'ServiceOwner': `${serviceOwnerParameter.value}`,
-								'UniquePrefix': `${uniquePrefixParameter.value}`
+								'ServiceCode': `${SERVICE_CODE.value}`,
+								'ServiceName': `${SERVICE_NAME.value}`,
+								'ServiceOwner': `${SERVICE_OWNER.value}`,
+								'UniquePrefix': `${UNIQUE_PREFIX.value}`
 							},
 							role: devPipelineAutomationRole,
 							runOrder: 3,
-							stackName: `${resourcePrefix}-cross-account-bucket`,
+							stackName: `${PREFIX}-cross-account-bucket`,
 							templatePath: cdkBuildOutput.atPath('bucket.template.yaml')
 						})
 					],
@@ -280,7 +264,7 @@ export class DeploymentPipeline extends Stack {
 							deploymentRole: devPipelineAutomationRole,
 							role: devPipelineAutomationRole,
 							runOrder: 2,
-							stackName: `${resourcePrefix}-cross-account-bucket`,
+							stackName: `${PREFIX}-cross-account-bucket`,
 						}),
 						new CloudFormationDeleteStackAction({
 							actionName: 'TeardownTypeScriptLambda',
@@ -288,7 +272,7 @@ export class DeploymentPipeline extends Stack {
 							deploymentRole: devPipelineAutomationRole,
 							role: devPipelineAutomationRole,
 							runOrder: 3,
-							stackName: `${resourcePrefix}-typescript-lambda`,
+							stackName: `${PREFIX}-typescript-lambda`,
 						}),
 						new CloudFormationDeleteStackAction({
 							actionName: 'TeardownDynamoDbTable',
@@ -296,7 +280,7 @@ export class DeploymentPipeline extends Stack {
 							deploymentRole: devPipelineAutomationRole,
 							role: devPipelineAutomationRole,
 							runOrder: 4,
-							stackName: `${resourcePrefix}-dynamodb-table`,
+							stackName: `${PREFIX}-dynamodb-table`,
 						})
 					],
 					stageName: 'DevTeardown'
@@ -348,7 +332,7 @@ export class DeploymentPipeline extends Stack {
 				's3:ListBucket'
 			],
 			effect: Effect.ALLOW,
-			principals: [new AccountPrincipal(stack.account), new AccountPrincipal(devAccountIdParameter.value)],
+			principals: [new AccountPrincipal(STACK.account), new AccountPrincipal(DEV_ACCOUNT.value)],
 			resources: [
 				`${artifactBucket.bucketArn}`,
 				`${artifactBucket.bucketArn}/*`

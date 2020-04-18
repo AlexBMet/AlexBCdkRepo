@@ -1,6 +1,6 @@
 {
+    "name": "@mfarrow701/typescript-lambda",
     "version": "0.1.0",
-    "name": "example2",
     "license": "BSD-3-Clause",
     "engines": {
         "node": ">=10.0.0"

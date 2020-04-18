@@ -1,44 +1,39 @@
-import {CfnParameter, Construct, RemovalPolicy, Stack, Tag} from '@aws-cdk/core';
 import {AttributeType, BillingMode, Table} from '@aws-cdk/aws-dynamodb';
+import {CfnParameter, Construct, RemovalPolicy, Stack, Tag} from '@aws-cdk/core';
 
 export class DynamodbTable extends Stack {
 
 	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
 
-		const environmentParameter = new CfnParameter(this, 'Environment', {
+		const STACK = Stack.of(this);
+		const ENVIRONMENT = new CfnParameter(this, 'Environment', {
 			allowedValues: ['dev', 'ci', 'stg', 'prod'],
 			description: 'TBC',
 			type: 'String'
 		});
-
-		const serviceCodeParameter = new CfnParameter(this, 'ServiceCode', {
+		const SERVICE_CODE = new CfnParameter(this, 'ServiceCode', {
 			type: 'String',
 			description: 'TBC'
 		});
-
-		const serviceNameParameter = new CfnParameter(this, 'ServiceName', {
+		const SERVICE_NAME = new CfnParameter(this, 'ServiceName', {
 			type: 'String',
 			description: 'TBC'
 		});
-
-		const serviceOwnerParameter = new CfnParameter(this, 'ServiceOwner', {
+		const SERVICE_OWNER = new CfnParameter(this, 'ServiceOwner', {
 			type: 'String',
 			description: 'TBC'
 		});
-
-		const uniquePrefixParameter = new CfnParameter(this, 'UniquePrefix', {
+		const UNIQUE_PREFIX = new CfnParameter(this, 'UniquePrefix', {
 			type: 'String',
 			description: 'TBC'
 		});
+		const PREFIX = `${UNIQUE_PREFIX.value}-${ENVIRONMENT.value}-${STACK.region}`;
 
-		Tag.add(this, 'Environment', `${environmentParameter.value}`);
-		Tag.add(this, 'ServiceCode', `${serviceCodeParameter.value}`);
-		Tag.add(this, 'ServiceName', `${serviceNameParameter.value}`);
-		Tag.add(this, 'ServiceOwner', `${serviceOwnerParameter.value}`);
-
-		const stack = Stack.of(this);
-		const resourcePrefix = `${uniquePrefixParameter.value}-${environmentParameter.value}-${stack.region}`;
+		Tag.add(this, 'Environment', `${ENVIRONMENT.value}`);
+		Tag.add(this, 'ServiceCode', `${SERVICE_CODE.value}`);
+		Tag.add(this, 'ServiceName', `${SERVICE_NAME.value}`);
+		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
 		new Table(this, 'DynamoDbTable', {
 			billingMode: BillingMode.PAY_PER_REQUEST,
@@ -47,7 +42,7 @@ export class DynamodbTable extends Stack {
 				type: AttributeType.STRING
 			},
 			removalPolicy: RemovalPolicy.DESTROY,
-			tableName: `${resourcePrefix}-table`,
+			tableName: `${PREFIX}-table`,
 		});
 	}
 }

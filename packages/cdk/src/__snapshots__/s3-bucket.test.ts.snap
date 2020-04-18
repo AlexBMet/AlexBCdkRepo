@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[s3-bucket.ts] unit tests [stack] must create an S3 bucket 1`] = `
+Object {
+  "Parameters": Object {
+    "Environment": Object {
+      "AllowedValues": Array [
+        "dev",
+        "ci",
+        "stg",
+        "prod",
+      ],
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "ServiceCode": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "ServiceName": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "ServiceOwner": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "UniquePrefix": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+  },
+  "Resources": Object {
+    "CrossAccountBucket9A289702": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "BucketName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              Object {
+                "Ref": "UniquePrefix",
+              },
+              "-",
+              Object {
+                "Ref": "Environment",
+              },
+              "-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-cross-account-bucket",
+            ],
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Environment",
+            "Value": Object {
+              "Ref": "Environment",
+            },
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": Object {
+              "Ref": "ServiceCode",
+            },
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": Object {
+              "Ref": "ServiceName",
+            },
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": Object {
+              "Ref": "ServiceOwner",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+}
+`;

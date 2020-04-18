@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[dynamodb-table.ts] unit tests [stack] must create a DynamoDB table 1`] = `
+Object {
+  "Parameters": Object {
+    "Environment": Object {
+      "AllowedValues": Array [
+        "dev",
+        "ci",
+        "stg",
+        "prod",
+      ],
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "ServiceCode": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "ServiceName": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "ServiceOwner": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "UniquePrefix": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+  },
+  "Resources": Object {
+    "DynamoDbTable6316879D": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "AttributeDefinitions": Array [
+          Object {
+            "AttributeName": "id",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "KeySchema": Array [
+          Object {
+            "AttributeName": "id",
+            "KeyType": "HASH",
+          },
+        ],
+        "TableName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              Object {
+                "Ref": "UniquePrefix",
+              },
+              "-",
+              Object {
+                "Ref": "Environment",
+              },
+              "-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-table",
+            ],
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Environment",
+            "Value": Object {
+              "Ref": "Environment",
+            },
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": Object {
+              "Ref": "ServiceCode",
+            },
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": Object {
+              "Ref": "ServiceName",
+            },
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": Object {
+              "Ref": "ServiceOwner",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+}
+`;

@@ -1,6 +1,6 @@
 {
+    "name": "@mfarrow701/cdk",
     "version": "0.1.0",
-    "name": "example",
     "license": "BSD-3-Clause",
     "engines": {
         "node": ">=10.0.0"
@@ -14,8 +14,8 @@
         "cdk": "cdk",
         "lint": "tslint -c tslint.json src/**/*.{tsx,ts} --fix",
         "lint.ci": "tslint -c tslint.json src/**/*.{tsx,ts}",
-        "precommit": "yarn audit && yarn lint",
-        "test": "echo \"Error: no test specified\" && exit 0"
+        "precommit": "yarn audit && yarn lint && yarn test",
+        "test": "jest --config=jest.config.json"
     },
     "dependencies": {
         "@aws-cdk/aws-cloudformation": "1.32.0",

@@ -1,15 +1,26 @@
-# Welcome to your CDK TypeScript project!
+<h1 align="center">Cross-account CDK Pipeline</h1>
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`AlexCdkAppStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+<h4 align="center">Coming soon...</h4>
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+<p align="center">
+  	<a href="#getting-started">Getting started</a> |
+  	<a href="#how-to-use">How to use</a> 
+</p>
 
-## Useful commands
+## Getting started
+### Overview
+Coming soon...
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+### Pre-requisites
+To clone and run this application, you'll need **[Git](https://git-scm.com)**, **[Node.js](https://nodejs.org/en/)** 
+and **[Yarn](https://yarnpkg.com/lang/en/)** installed on your computer.
+
+## How to use
+From your favourite command line tool, run the following:
+```bash
+# Clone the repo
+$ git clone git@github.com:AlexBMet/AlexBCdkRepo.git
+
+# Install dependencies
+$ yarn
+```
