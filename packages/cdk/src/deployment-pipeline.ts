@@ -1,12 +1,19 @@
-import {CfnParameter, Construct, PhysicalName, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
+import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
 import {Artifact, Pipeline} from '@aws-cdk/aws-codepipeline';
 import {
-	CloudFormationCreateUpdateStackAction,
+	CloudFormationCreateUpdateStackAction, CloudFormationDeleteStackAction,
 	CodeBuildAction,
-	GitHubSourceAction
+	GitHubSourceAction, ManualApprovalAction
 } from '@aws-cdk/aws-codepipeline-actions';
 import {BuildSpec, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild';
-import {AccountPrincipal, Role} from '@aws-cdk/aws-iam';
+import {
+	AccountPrincipal,
+	AccountRootPrincipal, AnyPrincipal,
+	Effect,
+	PolicyStatement,
+	Role,
+	ServicePrincipal
+} from '@aws-cdk/aws-iam';
 import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
 import {Key} from '@aws-cdk/aws-kms';
 
@@ -74,6 +81,10 @@ export class DeploymentPipeline extends Stack {
 		const stack = Stack.of(this);
 		const resourcePrefix = `${uniquePrefixParameter.value}-${deploymentTypeParameter.value}-${stack.region}`;
 
+		// Role definitions
+		const devPipelineAutomationRole = Role.fromRoleArn(this, 'TypeScriptLambdaContextRole', `arn:aws:iam::${devAccountIdParameter.value}:role/PipelineAutomationRole`);
+		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'DeploymentPipelineRole', `arn:aws:iam::${stack.account}:role/PipelineAutomationRole`);
+
 		// Source resources
 		const oauthToken = SecretValue.secretsManager('GitHubToken');
 		const infrastructureSourceOutput = new Artifact('SourceOutput');
@@ -105,14 +116,17 @@ export class DeploymentPipeline extends Stack {
 					},
 					build: {
 						commands: [
-							'cd packages/cdk',
-							'cdk synth CrossAccountBucket > template.yaml'
+							'cd $CODEBUILD_SRC_DIR/packages/cdk',
+							'cdk synth CrossAccountBucket > bucket.template.yaml',
+							'cdk synth TypeScriptLambda > lambda.template.yaml'
 						],
 					},
 				},
 				artifacts: {
+					'base-directory': '$CODEBUILD_SRC_DIR/packages/cdk',
 					files: [
-						'template.yaml'
+						'bucket.template.yaml',
+						'lambda.template.yaml'
 					]
 				}
 			}),
@@ -120,7 +134,7 @@ export class DeploymentPipeline extends Stack {
 				buildImage: LinuxBuildImage.STANDARD_2_0,
 			},
 			projectName: `${resourcePrefix}-typescript-lambda-build`,
-			role: Role.fromRoleArn(this, 'TypeScriptLambdaBuildRole', `arn:aws:iam::${stack.account}:role/PipelineAutomationRole`)
+			role: mgmtPipelineAutomationRole
 		});
 
 		const typeScriptLambdaBuildOutput = new Artifact('CdkBuildOutput');
@@ -129,7 +143,7 @@ export class DeploymentPipeline extends Stack {
 			artifactBucket,
 			pipelineName: `${resourcePrefix}-deployment-pipeline`,
 			restartExecutionOnUpdate: false,
-			role: Role.fromRoleArn(this, 'DeploymentPipelineRole', `arn:aws:iam::${stack.account}:role/PipelineAutomationRole`),
+			role: mgmtPipelineAutomationRole,
 			stages: [
 				{
 					stageName: 'Source',
@@ -155,9 +169,9 @@ export class DeploymentPipeline extends Stack {
 					actions: [
 						new CloudFormationCreateUpdateStackAction({
 							account: '080660350717',
-							actionName: 'DeployTypeScriptLambda',
+							actionName: 'DeployS3Bucket',
 							adminPermissions: false,
-							deploymentRole: Role.fromRoleArn(this, 'TypeScriptLambdaDeploymentRole', `arn:aws:iam::${devAccountIdParameter.value}:role/PipelineAutomationRole`),
+							deploymentRole: devPipelineAutomationRole,
 							parameterOverrides: {
 								'Environment': 'dev',
 								'ServiceCode': `${serviceCodeParameter.value}`,
@@ -165,14 +179,131 @@ export class DeploymentPipeline extends Stack {
 								'ServiceOwner': `${serviceOwnerParameter.value}`,
 								'UniquePrefix': `${uniquePrefixParameter.value}`
 							},
-							role: Role.fromRoleArn(this, 'TypeScriptLambdaContextRole', `arn:aws:iam::${devAccountIdParameter.value}:role/PipelineAutomationRole`),
+							role: devPipelineAutomationRole,
 							stackName: `${resourcePrefix}-cross-account-bucket`,
-							templatePath: typeScriptLambdaBuildOutput.atPath('template.yaml')
+							templatePath: typeScriptLambdaBuildOutput.atPath('bucket.template.yaml')
+						}),
+						new CloudFormationCreateUpdateStackAction({
+							account: '080660350717',
+							actionName: 'DeployTypeScriptLambda',
+							adminPermissions: false,
+							deploymentRole: devPipelineAutomationRole,
+							parameterOverrides: {
+								'Environment': 'dev',
+								'ServiceCode': `${serviceCodeParameter.value}`,
+								'ServiceName': `${serviceNameParameter.value}`,
+								'ServiceOwner': `${serviceOwnerParameter.value}`,
+								'UniquePrefix': `${uniquePrefixParameter.value}`
+							},
+							role: devPipelineAutomationRole,
+							stackName: `${resourcePrefix}-typescript-lambda`,
+							templatePath: typeScriptLambdaBuildOutput.atPath('lambda.template.yaml')
 						})
 					],
-					stageName: 'Deploy'
+					stageName: 'DeployToDev'
+				},
+				{
+					actions: [
+						new ManualApprovalAction({
+							actionName: 'Approve',
+							additionalInformation: 'Teardown the dev environment?',
+							runOrder: 1
+						}),
+						new CloudFormationDeleteStackAction({
+							actionName: 'TeardownTypeScriptLambda',
+							adminPermissions: false,
+							deploymentRole: devPipelineAutomationRole,
+							role: devPipelineAutomationRole,
+							runOrder: 2,
+							stackName: `${resourcePrefix}-cross-account-bucket`,
+						})
+					],
+					stageName: 'DevTeardown'
 				}
 			]
 		});
+
+		artifactBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: [
+					's3:GetObject'
+				],
+				effect: Effect.ALLOW,
+				principals: [new ServicePrincipal('codebuild.amazonaws.com')],
+				resources: [
+					`${artifactBucket.bucketArn}/*`
+				]
+			}));
+		artifactBucket.addToResourcePolicy(new PolicyStatement({
+			actions: [
+				's3:*'
+			],
+			effect: Effect.ALLOW,
+			principals: [new ServicePrincipal('cloudformation.amazonaws.com')],
+			resources: [
+				`${artifactBucket.bucketArn}`,
+				`${artifactBucket.bucketArn}/*`
+			]
+		}));
+		artifactBucket.addToResourcePolicy(new PolicyStatement({
+			actions: [
+				's3:DeleteObject',
+				's3:GetObject',
+				's3:GetObjectVersion',
+				's3:ListBucket',
+				's3:PutObject'
+			],
+			effect: Effect.ALLOW,
+			principals: [new ServicePrincipal('codepipeline.amazonaws.com')],
+			resources: [
+				`${artifactBucket.bucketArn}`,
+				`${artifactBucket.bucketArn}/*`
+			]
+		}));
+		artifactBucket.addToResourcePolicy(new PolicyStatement({
+			actions: [
+				's3:GetObject',
+				's3:GetObjectVersion',
+				's3:ListBucket'
+			],
+			effect: Effect.ALLOW,
+			principals: [new AccountPrincipal(stack.account), new AccountPrincipal(devAccountIdParameter.value)],
+			resources: [
+				`${artifactBucket.bucketArn}`,
+				`${artifactBucket.bucketArn}/*`
+			]
+		}));
+		artifactBucket.addToResourcePolicy(new PolicyStatement({
+			actions: [
+				's3:PutObject'
+			],
+			conditions: {
+				Null: {
+					's3:x-amz-server-side-encryption': 'true'
+				}
+			},
+			effect: Effect.DENY,
+			principals: [new AnyPrincipal()],
+			resources: [
+				`${artifactBucket.bucketArn}`,
+				`${artifactBucket.bucketArn}/*`
+			]
+		}));
+		artifactBucket.addToResourcePolicy(new PolicyStatement({
+			actions: [
+				's3:*'
+			],
+			conditions: {
+				Bool: {
+					'aws:SecureTransport': 'false'
+				}
+			},
+			effect: Effect.DENY,
+			principals: [new AnyPrincipal()],
+			resources: [
+				`${artifactBucket.bucketArn}`,
+				`${artifactBucket.bucketArn}/*`
+			]
+		}));
 	}
 }

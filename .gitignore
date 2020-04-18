@@ -5,7 +5,7 @@
 **/www
 
 # Compiled
-**/template.yaml
+packages/cdk/*.yaml
 
 # Dependencies
 node_modules

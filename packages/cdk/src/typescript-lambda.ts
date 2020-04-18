@@ -1,10 +1,11 @@
-import {CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag} from '@aws-cdk/core';
-import {Bucket} from '@aws-cdk/aws-s3';
+import {CfnParameter, Construct, Duration, Stack, StackProps, Tag} from '@aws-cdk/core';
+import {Code, Function, Runtime, Tracing} from '@aws-cdk/aws-lambda';
+import {LogGroup, RetentionDays} from '@aws-cdk/aws-logs';
 
 export interface Props extends StackProps {
 }
 
-export class CrossAccountBucket extends Stack {
+export class TypescriptLambda extends Stack {
 
 	constructor(scope: Construct, id: string, props: Props) {
 		super(scope, id, props);
@@ -43,9 +44,20 @@ export class CrossAccountBucket extends Stack {
 		const stack = Stack.of(this);
 		const resourcePrefix = `${uniquePrefixParameter.value}-${environmentParameter.value}-${stack.region}`;
 
-		new Bucket(this, 'CrossAccountBucket', {
-			bucketName: `${resourcePrefix}-cross-account-bucket`,
-			removalPolicy: RemovalPolicy.DESTROY
+		const lambdaFunction = new Function(this, 'TypeScriptLambda', {
+			code: Code.fromInline('exports.handler = function(event, ctx, cb) { return cb(null, "hi"); }'),
+			description: 'TBC',
+			functionName: `${resourcePrefix}-typescript-lambda`,
+			handler: 'index.handler',
+			memorySize: 128,
+			runtime: Runtime.NODEJS_12_X,
+			timeout: Duration.seconds(30),
+			tracing: Tracing.ACTIVE
+		});
+
+		new LogGroup(this, 'TypeScriptLambdaLogs', {
+			logGroupName: `/aws/lambda/${lambdaFunction.functionName}`,
+			retention: RetentionDays.THREE_DAYS
 		});
 	}
 }

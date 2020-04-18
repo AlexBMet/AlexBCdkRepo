@@ -1,0 +1,8 @@
+{
+	"coverageDirectory": "../coverage",
+	"collectCoverage": true,
+	"rootDir": "./src",
+	"verbose": true,
+	"preset": "ts-jest",
+	"testEnvironment": "node"
+}
