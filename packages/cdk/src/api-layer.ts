@@ -2,7 +2,7 @@ import {Code, Function, Runtime, Tracing} from '@aws-cdk/aws-lambda';
 import {LogGroup, RetentionDays} from '@aws-cdk/aws-logs';
 import {CfnParameter, Construct, Duration, RemovalPolicy, Stack, Tag} from '@aws-cdk/core';
 
-export class TypescriptLambda extends Stack {
+export class APILayer extends Stack {
 
 	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
@@ -45,13 +45,13 @@ export class TypescriptLambda extends Stack {
 		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
 		// tslint:disable-next-line:function-constructor
-		const lambdaFunction = new Function(this, 'TypeScriptLambda', {
+		const lambdaFunction = new Function(this, 'LambdaFunction', {
 			code: Code.fromCfnParameters({
 				bucketNameParam: BUCKET_NAME,
 				objectKeyParam: OBJECT_KEY
 			}),
 			description: 'TBC',
-			functionName: `${PREFIX}-typescript-lambda`,
+			functionName: `${PREFIX}-lambda`,
 			handler: 'dist/index.handler',
 			memorySize: 128,
 			runtime: Runtime.NODEJS_12_X,
@@ -59,7 +59,7 @@ export class TypescriptLambda extends Stack {
 			tracing: Tracing.ACTIVE
 		});
 
-		new LogGroup(this, 'TypeScriptLambdaLogs', {
+		new LogGroup(this, 'LambdaLogs', {
 			logGroupName: `/aws/lambda/${lambdaFunction.functionName}`,
 			retention: RetentionDays.THREE_DAYS,
 			removalPolicy: RemovalPolicy.DESTROY

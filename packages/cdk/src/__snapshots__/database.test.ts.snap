@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`[s3-bucket.ts] unit tests [stack] must create an S3 bucket 1`] = `
+exports[`[database.ts] unit tests [stack] must create a DynamoDB table 1`] = `
 Object {
   "Parameters": Object {
     "Environment": Object {
@@ -31,10 +31,23 @@ Object {
     },
   },
   "Resources": Object {
-    "CrossAccountBucket9A289702": Object {
+    "DatabaseB269D8BB": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "BucketName": Object {
+        "AttributeDefinitions": Array [
+          Object {
+            "AttributeName": "id",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "KeySchema": Array [
+          Object {
+            "AttributeName": "id",
+            "KeyType": "HASH",
+          },
+        ],
+        "TableName": Object {
           "Fn::Join": Array [
             "",
             Array [
@@ -49,7 +62,7 @@ Object {
               Object {
                 "Ref": "AWS::Region",
               },
-              "-cross-account-bucket",
+              "-table",
             ],
           ],
         },
@@ -80,7 +93,7 @@ Object {
           },
         ],
       },
-      "Type": "AWS::S3::Bucket",
+      "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
     },
   },

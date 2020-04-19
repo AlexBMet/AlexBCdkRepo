@@ -396,18 +396,18 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"cd $CODEBUILD_SRC_DIR/packages/cdk\\",
-        \\"cdk synth CrossAccountBucket > bucket.template.yaml\\",
-        \\"cdk synth TypeScriptLambda > lambda.template.yaml\\",
-        \\"cdk synth DynamoDbTable > dynamodb.template.yaml\\"
+        \\"cdk synth Client > client.template.yaml\\",
+        \\"cdk synth APILayer > api.template.yaml\\",
+        \\"cdk synth Database > database.template.yaml\\"
       ]
     }
   },
   \\"artifacts\\": {
     \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/cdk\\",
     \\"files\\": [
-      \\"bucket.template.yaml\\",
-      \\"lambda.template.yaml\\",
-      \\"dynamodb.template.yaml\\"
+      \\"client.template.yaml\\",
+      \\"api.template.yaml\\",
+      \\"database.template.yaml\\"
     ]
   }
 }",
@@ -442,7 +442,7 @@ Object {
       },
       "Type": "AWS::CodeBuild::Project",
     },
-    "DeploymentPipelineBuildBuildTypeScriptLambdaCodePipelineActionRole5CCAAB7B": Object {
+    "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -500,7 +500,7 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "DeploymentPipelineBuildBuildTypeScriptLambdaCodePipelineActionRoleDefaultPolicy77575CFD": Object {
+    "DeploymentPipelineBuildBuildLambdaCodePipelineActionRoleDefaultPolicy6C546253": Object {
       "Properties": Object {
         "PolicyDocument": Object {
           "Statement": Array [
@@ -513,7 +513,7 @@ Object {
               "Effect": "Allow",
               "Resource": Object {
                 "Fn::GetAtt": Array [
-                  "TypeScriptLambdaBuildFB15C454",
+                  "LambdaBuildCF1FE7ED",
                   "Arn",
                 ],
               },
@@ -521,10 +521,10 @@ Object {
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "DeploymentPipelineBuildBuildTypeScriptLambdaCodePipelineActionRoleDefaultPolicy77575CFD",
+        "PolicyName": "DeploymentPipelineBuildBuildLambdaCodePipelineActionRoleDefaultPolicy6C546253",
         "Roles": Array [
           Object {
-            "Ref": "DeploymentPipelineBuildBuildTypeScriptLambdaCodePipelineActionRole5CCAAB7B",
+            "Ref": "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7",
           },
         ],
       },
@@ -678,7 +678,7 @@ Object {
     },
     "DeploymentPipelineEDAF206A": Object {
       "DependsOn": Array [
-        "DeploymentPipelineRolePolicy652323F4",
+        "MgmtPipelineAutomationRolePolicy8F4B4040",
       ],
       "Properties": Object {
         "ArtifactStore": Object {
@@ -800,7 +800,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ProjectName": Object {
-                    "Ref": "TypeScriptLambdaBuildFB15C454",
+                    "Ref": "LambdaBuildCF1FE7ED",
                   },
                 },
                 "InputArtifacts": Array [
@@ -808,15 +808,15 @@ Object {
                     "Name": "SourceOutput",
                   },
                 ],
-                "Name": "BuildTypeScriptLambda",
+                "Name": "BuildLambda",
                 "OutputArtifacts": Array [
                   Object {
-                    "Name": "TypeScriptLambdaBuildOutput",
+                    "Name": "LambdaBuildOutput",
                   },
                 ],
                 "RoleArn": Object {
                   "Fn::GetAtt": Array [
-                    "DeploymentPipelineBuildBuildTypeScriptLambdaCodePipelineActionRole5CCAAB7B",
+                    "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7",
                     "Arn",
                   ],
                 },
@@ -887,18 +887,18 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-dynamodb-table",
+                        "-database",
                       ],
                     ],
                   },
-                  "TemplatePath": "CDKBuildOutput::dynamodb.template.yaml",
+                  "TemplatePath": "CDKBuildOutput::database.template.yaml",
                 },
                 "InputArtifacts": Array [
                   Object {
                     "Name": "CDKBuildOutput",
                   },
                 ],
-                "Name": "DeployDynamoDbTable",
+                "Name": "DeployDatabase",
                 "RoleArn": Object {
                   "Fn::Join": Array [
                     "",
@@ -939,7 +939,7 @@ Object {
                         Object {
                           "Ref": "ServiceOwner",
                         },
-                        "\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"TypeScriptLambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"TypeScriptLambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"",
+                        "\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"",
                         Object {
                           "Ref": "UniquePrefix",
                         },
@@ -974,21 +974,21 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-typescript-lambda",
+                        "-api-layer",
                       ],
                     ],
                   },
-                  "TemplatePath": "CDKBuildOutput::lambda.template.yaml",
+                  "TemplatePath": "CDKBuildOutput::api.template.yaml",
                 },
                 "InputArtifacts": Array [
                   Object {
-                    "Name": "TypeScriptLambdaBuildOutput",
+                    "Name": "LambdaBuildOutput",
                   },
                   Object {
                     "Name": "CDKBuildOutput",
                   },
                 ],
-                "Name": "DeployTypeScriptLambda",
+                "Name": "DeployAPILayer",
                 "RoleArn": Object {
                   "Fn::Join": Array [
                     "",
@@ -1063,18 +1063,18 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-cross-account-bucket",
+                        "-client",
                       ],
                     ],
                   },
-                  "TemplatePath": "CDKBuildOutput::bucket.template.yaml",
+                  "TemplatePath": "CDKBuildOutput::client.template.yaml",
                 },
                 "InputArtifacts": Array [
                   Object {
                     "Name": "CDKBuildOutput",
                   },
                 ],
-                "Name": "DeployS3Bucket",
+                "Name": "DeployClient",
                 "RoleArn": Object {
                   "Fn::Join": Array [
                     "",
@@ -1149,12 +1149,12 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-cross-account-bucket",
+                        "-client",
                       ],
                     ],
                   },
                 },
-                "Name": "TeardownS3Bucket",
+                "Name": "TeardownClient",
                 "RoleArn": Object {
                   "Fn::Join": Array [
                     "",
@@ -1205,12 +1205,12 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-typescript-lambda",
+                        "-api-layer",
                       ],
                     ],
                   },
                 },
-                "Name": "TeardownTypeScriptLambda",
+                "Name": "TeardownAPILayer",
                 "RoleArn": Object {
                   "Fn::Join": Array [
                     "",
@@ -1261,12 +1261,12 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-dynamodb-table",
+                        "-database",
                       ],
                     ],
                   },
                 },
-                "Name": "TeardownDynamoDbTable",
+                "Name": "TeardownDatabase",
                 "RoleArn": Object {
                   "Fn::Join": Array [
                     "",
@@ -1314,275 +1314,6 @@ Object {
       },
       "Type": "AWS::CodePipeline::Pipeline",
     },
-    "DeploymentPipelineRolePolicy652323F4": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "CDKBuild7F70D971",
-                      },
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "CDKBuild7F70D971",
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "TypeScriptLambdaBuildFB15C454",
-                      },
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "TypeScriptLambdaBuildFB15C454",
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-                "s3:DeleteObject*",
-                "s3:PutObject*",
-                "s3:Abort*",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::GetAtt": Array [
-                    "ArtifactBucket7410C9EF",
-                    "Arn",
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      Object {
-                        "Fn::GetAtt": Array [
-                          "ArtifactBucket7410C9EF",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "FeatureKMSKeyF1C3E2DD",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRole8FC7A4EC",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "FeatureKMSKeyF1C3E2DD",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "DeploymentPipelineBuildBuildTypeScriptLambdaCodePipelineActionRole5CCAAB7B",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:iam::",
-                    Object {
-                      "Ref": "DevAccountId",
-                    },
-                    ":role/PipelineAutomationRole",
-                  ],
-                ],
-              },
-            },
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "DeploymentPipelineRolePolicy652323F4",
-        "Roles": Array [
-          Object {
-            "Fn::Select": Array [
-              1,
-              Object {
-                "Fn::Split": Array [
-                  "/",
-                  Object {
-                    "Fn::Select": Array [
-                      5,
-                      Object {
-                        "Fn::Split": Array [
-                          ":",
-                          Object {
-                            "Fn::Join": Array [
-                              "",
-                              Array [
-                                "arn:aws:iam::",
-                                Object {
-                                  "Ref": "AWS::AccountId",
-                                },
-                                ":role/PipelineAutomationRole",
-                              ],
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "DeploymentPipelineSourceWebhookResource70374C7A": Object {
       "Properties": Object {
         "Authentication": "GITHUB_HMAC",
@@ -1604,289 +1335,7 @@ Object {
       },
       "Type": "AWS::CodePipeline::Webhook",
     },
-    "FeatureKMSKeyAlias7ACEBE30": Object {
-      "Properties": Object {
-        "AliasName": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "alias/",
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "/",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              "/feature/key",
-            ],
-          ],
-        },
-        "TargetKeyId": Object {
-          "Fn::GetAtt": Array [
-            "FeatureKMSKeyF1C3E2DD",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::KMS::Alias",
-    },
-    "FeatureKMSKeyF1C3E2DD": Object {
-      "DeletionPolicy": "Delete",
-      "Properties": Object {
-        "Description": "KMS key for the feature pipeline",
-        "EnableKeyRotation": false,
-        "KeyPolicy": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "kms:Create*",
-                "kms:Describe*",
-                "kms:Enable*",
-                "kms:List*",
-                "kms:Put*",
-                "kms:Update*",
-                "kms:Revoke*",
-                "kms:Disable*",
-                "kms:Get*",
-                "kms:Delete*",
-                "kms:ScheduleKeyDeletion",
-                "kms:CancelKeyDeletion",
-                "kms:GenerateDataKey",
-                "kms:TagResource",
-                "kms:UntagResource",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
-          },
-        ],
-      },
-      "Type": "AWS::KMS::Key",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "TypeScriptLambdaBuildFB15C454": Object {
-      "Properties": Object {
-        "Artifacts": Object {
-          "Type": "CODEPIPELINE",
-        },
-        "EncryptionKey": Object {
-          "Fn::GetAtt": Array [
-            "FeatureKMSKeyF1C3E2DD",
-            "Arn",
-          ],
-        },
-        "Environment": Object {
-          "ComputeType": "BUILD_GENERAL1_MEDIUM",
-          "Image": "aws/codebuild/standard:3.0",
-          "PrivilegedMode": false,
-          "Type": "LINUX_CONTAINER",
-        },
-        "Name": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "-",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              "-",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              "-typescript-lambda-build",
-            ],
-          ],
-        },
-        "ServiceRole": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "arn:aws:iam::",
-              Object {
-                "Ref": "AWS::AccountId",
-              },
-              ":role/PipelineAutomationRole",
-            ],
-          ],
-        },
-        "Source": Object {
-          "BuildSpec": "{
-  \\"version\\": \\"0.2\\",
-  \\"phases\\": {
-    \\"install\\": {
-      \\"commands\\": [
-        \\"yarn\\"
-      ]
-    },
-    \\"build\\": {
-      \\"commands\\": [
-        \\"cd $CODEBUILD_SRC_DIR/packages/lambda\\",
-        \\"yarn build\\",
-        \\"cd $CODEBUILD_SRC_DIR\\",
-        \\"yarn install --production --ignore-scripts --prefer-offline\\"
-      ]
-    }
-  },
-  \\"artifacts\\": {
-    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/lambda\\",
-    \\"files\\": [
-      \\"dist/*\\",
-      \\"node_modules/*\\"
-    ]
-  }
-}",
-          "Type": "CODEPIPELINE",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
-          },
-        ],
-      },
-      "Type": "AWS::CodeBuild::Project",
-    },
-    "TypeScriptLambdaContextRolePolicy070A506E": Object {
+    "DevPipelineAutomationRolePolicy522D2F98": Object {
       "Properties": Object {
         "PolicyDocument": Object {
           "Statement": Array [
@@ -2051,7 +1500,7 @@ Object {
                       Object {
                         "Ref": "AWS::Region",
                       },
-                      "-dynamodb-table/*",
+                      "-database/*",
                     ],
                   ],
                 },
@@ -2083,7 +1532,7 @@ Object {
                       Object {
                         "Ref": "AWS::Region",
                       },
-                      "-typescript-lambda/*",
+                      "-api-layer/*",
                     ],
                   ],
                 },
@@ -2115,7 +1564,7 @@ Object {
                       Object {
                         "Ref": "AWS::Region",
                       },
-                      "-cross-account-bucket/*",
+                      "-client/*",
                     ],
                   ],
                 },
@@ -2156,7 +1605,7 @@ Object {
                       Object {
                         "Ref": "AWS::Region",
                       },
-                      "-cross-account-bucket/*",
+                      "-client/*",
                     ],
                   ],
                 },
@@ -2188,7 +1637,7 @@ Object {
                       Object {
                         "Ref": "AWS::Region",
                       },
-                      "-typescript-lambda/*",
+                      "-api-layer/*",
                     ],
                   ],
                 },
@@ -2220,7 +1669,7 @@ Object {
                       Object {
                         "Ref": "AWS::Region",
                       },
-                      "-dynamodb-table/*",
+                      "-database/*",
                     ],
                   ],
                 },
@@ -2229,7 +1678,7 @@ Object {
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "TypeScriptLambdaContextRolePolicy070A506E",
+        "PolicyName": "DevPipelineAutomationRolePolicy522D2F98",
         "Roles": Array [
           Object {
             "Fn::Select": Array [
@@ -2250,6 +1699,572 @@ Object {
                                 "arn:aws:iam::",
                                 Object {
                                   "Ref": "DevAccountId",
+                                },
+                                ":role/PipelineAutomationRole",
+                              ],
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "FeatureKMSKeyAlias7ACEBE30": Object {
+      "Properties": Object {
+        "AliasName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "alias/",
+              Object {
+                "Ref": "UniquePrefix",
+              },
+              "/",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "/",
+              Object {
+                "Ref": "DeploymentType",
+              },
+              "/key",
+            ],
+          ],
+        },
+        "TargetKeyId": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::KMS::Alias",
+    },
+    "FeatureKMSKeyF1C3E2DD": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "KMS key for the ",
+              Object {
+                "Ref": "DeploymentType",
+              },
+              " pipeline",
+            ],
+          ],
+        },
+        "EnableKeyRotation": false,
+        "KeyPolicy": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion",
+                "kms:GenerateDataKey",
+                "kms:TagResource",
+                "kms:UntagResource",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "DevAccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": Object {
+              "Ref": "DeploymentType",
+            },
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": Object {
+              "Ref": "ServiceCode",
+            },
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": Object {
+              "Ref": "ServiceName",
+            },
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": Object {
+              "Ref": "ServiceOwner",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::KMS::Key",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LambdaBuildCF1FE7ED": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_MEDIUM",
+          "Image": "aws/codebuild/standard:3.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              Object {
+                "Ref": "UniquePrefix",
+              },
+              "-",
+              Object {
+                "Ref": "DeploymentType",
+              },
+              "-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-lambda-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"yarn\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"cd $CODEBUILD_SRC_DIR/packages/lambda\\",
+        \\"yarn build\\",
+        \\"cd $CODEBUILD_SRC_DIR\\",
+        \\"yarn install --production --ignore-scripts --prefer-offline\\"
+      ]
+    }
+  },
+  \\"artifacts\\": {
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/lambda\\",
+    \\"files\\": [
+      \\"dist/*\\",
+      \\"node_modules/*\\"
+    ]
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": Object {
+              "Ref": "DeploymentType",
+            },
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": Object {
+              "Ref": "ServiceCode",
+            },
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": Object {
+              "Ref": "ServiceName",
+            },
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": Object {
+              "Ref": "ServiceOwner",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "MgmtPipelineAutomationRolePolicy8F4B4040": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "CDKBuild7F70D971",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "CDKBuild7F70D971",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "LambdaBuildCF1FE7ED",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "LambdaBuildCF1FE7ED",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRole8FC7A4EC",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:iam::",
+                    Object {
+                      "Ref": "DevAccountId",
+                    },
+                    ":role/PipelineAutomationRole",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "MgmtPipelineAutomationRolePolicy8F4B4040",
+        "Roles": Array [
+          Object {
+            "Fn::Select": Array [
+              1,
+              Object {
+                "Fn::Split": Array [
+                  "/",
+                  Object {
+                    "Fn::Select": Array [
+                      5,
+                      Object {
+                        "Fn::Split": Array [
+                          ":",
+                          Object {
+                            "Fn::Join": Array [
+                              "",
+                              Array [
+                                "arn:aws:iam::",
+                                Object {
+                                  "Ref": "AWS::AccountId",
                                 },
                                 ":role/PipelineAutomationRole",
                               ],

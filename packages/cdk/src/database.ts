@@ -1,7 +1,7 @@
 import {AttributeType, BillingMode, Table} from '@aws-cdk/aws-dynamodb';
 import {CfnParameter, Construct, RemovalPolicy, Stack, Tag} from '@aws-cdk/core';
 
-export class DynamodbTable extends Stack {
+export class Database extends Stack {
 
 	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
@@ -35,7 +35,7 @@ export class DynamodbTable extends Stack {
 		Tag.add(this, 'ServiceName', `${SERVICE_NAME.value}`);
 		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
-		new Table(this, 'DynamoDbTable', {
+		new Table(this, 'Database', {
 			billingMode: BillingMode.PAY_PER_REQUEST,
 			partitionKey: {
 				name: 'id',

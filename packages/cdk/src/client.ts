@@ -1,7 +1,7 @@
 import {Bucket} from '@aws-cdk/aws-s3';
 import {CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag} from '@aws-cdk/core';
 
-export class CrossAccountBucket extends Stack {
+export class Client extends Stack {
 
 	constructor(scope: Construct, id: string, props: {}) {
 		super(scope, id, props);
@@ -36,7 +36,7 @@ export class CrossAccountBucket extends Stack {
 		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
 		new Bucket(this, 'CrossAccountBucket', {
-			bucketName: `${PREFIX}-cross-account-bucket`,
+			bucketName: `${PREFIX}-client`,
 			removalPolicy: RemovalPolicy.DESTROY
 		});
 	}

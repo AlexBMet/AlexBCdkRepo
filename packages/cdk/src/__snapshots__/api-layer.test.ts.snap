@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`[typescript-lambda.ts] unit tests [stack] must create an lambda function 1`] = `
+exports[`[api-layer.ts] unit tests [stack] must create an lambda function 1`] = `
 Object {
   "Parameters": Object {
     "Environment": Object {
@@ -39,10 +39,10 @@ Object {
     },
   },
   "Resources": Object {
-    "TypeScriptLambdaE9A80D1B": Object {
+    "LambdaFunctionBF21E41F": Object {
       "DependsOn": Array [
-        "TypeScriptLambdaServiceRoleDefaultPolicyC84F6F7E",
-        "TypeScriptLambdaServiceRole5A9D8B00",
+        "LambdaFunctionServiceRoleDefaultPolicy32EEEE35",
+        "LambdaFunctionServiceRoleC555A460",
       ],
       "Properties": Object {
         "Code": Object {
@@ -69,7 +69,7 @@ Object {
               Object {
                 "Ref": "AWS::Region",
               },
-              "-typescript-lambda",
+              "-lambda",
             ],
           ],
         },
@@ -77,7 +77,7 @@ Object {
         "MemorySize": 128,
         "Role": Object {
           "Fn::GetAtt": Array [
-            "TypeScriptLambdaServiceRole5A9D8B00",
+            "LambdaFunctionServiceRoleC555A460",
             "Arn",
           ],
         },
@@ -115,26 +115,7 @@ Object {
       },
       "Type": "AWS::Lambda::Function",
     },
-    "TypeScriptLambdaLogs9E207222": Object {
-      "DeletionPolicy": "Delete",
-      "Properties": Object {
-        "LogGroupName": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "/aws/lambda/",
-              Object {
-                "Ref": "TypeScriptLambdaE9A80D1B",
-              },
-            ],
-          ],
-        },
-        "RetentionInDays": 3,
-      },
-      "Type": "AWS::Logs::LogGroup",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "TypeScriptLambdaServiceRole5A9D8B00": Object {
+    "LambdaFunctionServiceRoleC555A460": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -191,7 +172,7 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "TypeScriptLambdaServiceRoleDefaultPolicyC84F6F7E": Object {
+    "LambdaFunctionServiceRoleDefaultPolicy32EEEE35": Object {
       "Properties": Object {
         "PolicyDocument": Object {
           "Statement": Array [
@@ -206,14 +187,33 @@ Object {
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "TypeScriptLambdaServiceRoleDefaultPolicyC84F6F7E",
+        "PolicyName": "LambdaFunctionServiceRoleDefaultPolicy32EEEE35",
         "Roles": Array [
           Object {
-            "Ref": "TypeScriptLambdaServiceRole5A9D8B00",
+            "Ref": "LambdaFunctionServiceRoleC555A460",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "LambdaLogs02F6D053": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "LogGroupName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "/aws/lambda/",
+              Object {
+                "Ref": "LambdaFunctionBF21E41F",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 3,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
     },
   },
 }

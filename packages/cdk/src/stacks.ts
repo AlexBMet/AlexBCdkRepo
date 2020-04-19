@@ -1,16 +1,16 @@
 import {App} from '@aws-cdk/core';
+import {APILayer} from './api-layer';
+import {Client} from './client';
+import {Database} from './database';
 import {DeploymentPipeline} from './deployment-pipeline';
-import {DynamodbTable} from './dynamodb-table';
-import {CrossAccountBucket} from './s3-bucket';
-import {TypescriptLambda} from './typescript-lambda';
 
 const stacks = new App();
 
-new CrossAccountBucket(stacks, 'CrossAccountBucket', {});
+new Client(stacks, 'Client', {});
 
-new TypescriptLambda(stacks, 'TypeScriptLambda', {});
+new APILayer(stacks, 'APILayer', {});
 
-new DynamodbTable(stacks, 'DynamoDbTable', {});
+new Database(stacks, 'Database', {});
 
 new DeploymentPipeline(stacks, 'DeploymentPipeline', {});
 
