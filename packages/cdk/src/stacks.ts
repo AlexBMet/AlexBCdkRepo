@@ -19,9 +19,9 @@ new DeploymentPipeline(stacks, `DeploymentPipeline`, {
 	ciAccountId: process.env.CI_ACCOUNT as string,
 	prodAccountId: process.env.PROD_ACCOUNT as string,
 	deploymentType: process.env.DEPLOYMENT_TYPE as 'feature' | 'release',
-	serviceCode: 'WINCCC',
-	serviceName: 'Cloud Team',
-	serviceOwner: 'Cloud Team',
+	serviceCode:  'SFWRMC' ,
+	serviceName: 'NSWWS Sign Up',
+	serviceOwner: 'aws-nswws-dis-business@metoffice.gov.uk',
 	sourceBranch: process.env.SOURCE_BRANCH as string,
 	uniquePrefix: process.env.UNIQUE_PREFIX as string
 });
