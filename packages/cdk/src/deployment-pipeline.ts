@@ -32,7 +32,7 @@ export class DeploymentPipeline extends Stack {
 
 		const STACK = Stack.of(this);
 
-		const PREFIX = `${props.uniquePrefix}-${props.deploymentType}-${STACK.region}`;
+		const PREFIX = `${props.uniquePrefix}-${props.deploymentType}-${STACK.region}`; // TODO: This doesn't work for the stack names...
 
 		Tag.add(this, 'Deployment', `${props.deploymentType}`);
 		Tag.add(this, 'ServiceCode', `${props.serviceCode}`);
@@ -189,7 +189,7 @@ export class DeploymentPipeline extends Stack {
 				'UniquePrefix': `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
-			runOrder: 1,
+			runOrder: 2,
 			stackName: `${PREFIX}-database`,
 			templatePath: cdkBuildOutput.atPath('database.template.yaml')
 		});
@@ -207,7 +207,7 @@ export class DeploymentPipeline extends Stack {
 				'UniquePrefix': `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
-			runOrder: 1,
+			runOrder: 2,
 			stackName: `${PREFIX}-database`,
 			templatePath: cdkBuildOutput.atPath('database.template.yaml')
 		});
@@ -229,7 +229,7 @@ export class DeploymentPipeline extends Stack {
 				'UniquePrefix': `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
-			runOrder: 2,
+			runOrder: 3,
 			stackName: `${PREFIX}-api-layer`,
 			templatePath: cdkBuildOutput.atPath('api.template.yaml')
 		});
@@ -251,7 +251,7 @@ export class DeploymentPipeline extends Stack {
 				'UniquePrefix': `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
-			runOrder: 2,
+			runOrder: 3,
 			stackName: `${PREFIX}-api-layer`,
 			templatePath: cdkBuildOutput.atPath('api.template.yaml')
 		});
@@ -269,7 +269,7 @@ export class DeploymentPipeline extends Stack {
 				'UniquePrefix': `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
-			runOrder: 3,
+			runOrder: 4,
 			stackName: `${PREFIX}-client`,
 			templatePath: cdkBuildOutput.atPath('client.template.yaml')
 		});
@@ -287,7 +287,7 @@ export class DeploymentPipeline extends Stack {
 				'UniquePrefix': `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
-			runOrder: 3,
+			runOrder: 4,
 			stackName: `${PREFIX}-client`,
 			templatePath: cdkBuildOutput.atPath('client.template.yaml')
 		});
@@ -307,6 +307,11 @@ export class DeploymentPipeline extends Stack {
 
 			const deployCIStage = deploymentPipeline.addStage({
 				actions: [
+					new ManualApprovalAction({
+						actionName: 'Approve',
+						additionalInformation: 'Deploy to the CI environment?',
+						runOrder: 1
+					}),
 					stage2DeployDatabaseAction,
 					stage2DeployAPILayerAction,
 					stage2DeployClientAction
@@ -317,13 +322,10 @@ export class DeploymentPipeline extends Stack {
 				stageName: 'DeployToCI',
 			});
 
+			// TODO: Add integration & E2E tests here
+
 			const teardownCIStage = deploymentPipeline.addStage({
 				actions: [
-					new ManualApprovalAction({
-						actionName: 'Approve',
-						additionalInformation: 'Teardown the CI environment?',
-						runOrder: 1
-					}),
 					new CloudFormationDeleteStackAction({
 						actionName: 'TeardownClient',
 						adminPermissions: false,

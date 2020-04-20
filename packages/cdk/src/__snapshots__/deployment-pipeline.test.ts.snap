@@ -791,7 +791,7 @@ Object {
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DeploymentPipelineCITeardownApproveCodePipelineActionRole4945BBD6": Object {
+    "DeploymentPipelineDeployToCIApproveCodePipelineActionRole931E2CA4": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -1065,7 +1065,7 @@ Object {
                 ],
                 "Name": "DeployDatabase",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 1,
+                "RunOrder": 2,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1103,7 +1103,7 @@ Object {
                 ],
                 "Name": "DeployAPILayer",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1137,13 +1137,32 @@ Object {
                 ],
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
             ],
             "Name": "DeployToDev",
           },
           Object {
             "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "CustomData": "Deploy to the CI environment?",
+                },
+                "Name": "Approve",
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineDeployToCIApproveCodePipelineActionRole931E2CA4",
+                    "Arn",
+                  ],
+                },
+                "RunOrder": 1,
+              },
               Object {
                 "ActionTypeId": Object {
                   "Category": "Deploy",
@@ -1176,7 +1195,7 @@ Object {
                 ],
                 "Name": "DeployDatabase",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 1,
+                "RunOrder": 2,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1214,7 +1233,7 @@ Object {
                 ],
                 "Name": "DeployAPILayer",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1248,32 +1267,13 @@ Object {
                 ],
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
             ],
             "Name": "DeployToCI",
           },
           Object {
             "Actions": Array [
-              Object {
-                "ActionTypeId": Object {
-                  "Category": "Approval",
-                  "Owner": "AWS",
-                  "Provider": "Manual",
-                  "Version": "1",
-                },
-                "Configuration": Object {
-                  "CustomData": "Teardown the CI environment?",
-                },
-                "Name": "Approve",
-                "RoleArn": Object {
-                  "Fn::GetAtt": Array [
-                    "DeploymentPipelineCITeardownApproveCodePipelineActionRole4945BBD6",
-                    "Arn",
-                  ],
-                },
-                "RunOrder": 1,
-              },
               Object {
                 "ActionTypeId": Object {
                   "Category": "Deploy",
@@ -2207,17 +2207,17 @@ Object {
             Object {
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
-              "Resource": "arn:aws:iam::456:role/PipelineAutomationRole",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineDeployToCIApproveCodePipelineActionRole931E2CA4",
+                  "Arn",
+                ],
+              },
             },
             Object {
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "DeploymentPipelineCITeardownApproveCodePipelineActionRole4945BBD6",
-                  "Arn",
-                ],
-              },
+              "Resource": "arn:aws:iam::456:role/PipelineAutomationRole",
             },
             Object {
               "Action": "sts:AssumeRole",
@@ -3274,7 +3274,7 @@ Object {
                 ],
                 "Name": "DeployDatabase",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 1,
+                "RunOrder": 2,
               },
               Object {
                 "ActionTypeId": Object {
@@ -3312,7 +3312,7 @@ Object {
                 ],
                 "Name": "DeployAPILayer",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -3346,7 +3346,7 @@ Object {
                 ],
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
             ],
             "Name": "DeployToStg",
@@ -3404,7 +3404,7 @@ Object {
                 ],
                 "Name": "DeployDatabase",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 1,
+                "RunOrder": 2,
               },
               Object {
                 "ActionTypeId": Object {
@@ -3442,7 +3442,7 @@ Object {
                 ],
                 "Name": "DeployAPILayer",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -3476,7 +3476,7 @@ Object {
                 ],
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
             ],
             "Name": "DeployToProd",
