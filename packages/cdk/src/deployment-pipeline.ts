@@ -11,7 +11,7 @@ import {
 import {AccountPrincipal, AnyPrincipal, Effect, PolicyStatement, Role, ServicePrincipal} from '@aws-cdk/aws-iam';
 import {Key} from '@aws-cdk/aws-kms';
 import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
-import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
+import { Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
 
 export interface Props extends StackProps {
 	readonly devAccountId: string;

@@ -1,9 +1,11 @@
 import {App} from '@aws-cdk/core';
+import {config} from 'dotenv';
 import {APILayer} from './api-layer';
 import {Client} from './client';
 import {Database} from './database';
 import {DeploymentPipeline} from './deployment-pipeline';
 
+config();
 const stacks = new App();
 
 new Client(stacks, 'Client', {});
@@ -12,17 +14,16 @@ new APILayer(stacks, 'APILayer', {});
 
 new Database(stacks, 'Database', {});
 
-// TODO: Replace with environment variables form process.env
-new DeploymentPipeline(stacks, 'DeploymentPipeline', {
-	devAccountId: '080660350717',
-	ciAccountId: '896187182741',
-	prodAccountId: '080660350717', // TODO: Replace me with PROD ID
-	deploymentType: 'feature',
+new DeploymentPipeline(stacks, `DeploymentPipeline`, {
+	devAccountId: process.env.DEV_ACCOUNT as string,
+	ciAccountId: process.env.CI_ACCOUNT as string,
+	prodAccountId: process.env.PROD_ACCOUNT as string,
+	deploymentType: process.env.DEPLOYMENT_TYPE as 'feature' | 'release',
 	serviceCode: 'WINCCC',
 	serviceName: 'Cloud Team',
 	serviceOwner: 'Cloud Team',
-	sourceBranch: 'matt2-cdk-pipeline',
-	uniquePrefix: 'matt3'
+	sourceBranch: process.env.SOURCE_BRANCH as string,
+	uniquePrefix: process.env.UNIQUE_PREFIX as string
 });
 
 stacks.synth();
