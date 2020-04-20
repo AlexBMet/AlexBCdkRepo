@@ -11,62 +11,44 @@ import {
 import {AccountPrincipal, AnyPrincipal, Effect, PolicyStatement, Role, ServicePrincipal} from '@aws-cdk/aws-iam';
 import {Key} from '@aws-cdk/aws-kms';
 import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
-import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, Tag} from '@aws-cdk/core';
+import {CfnParameter, Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag} from '@aws-cdk/core';
+
+export interface Props extends StackProps {
+	readonly devAccountId: string;
+	readonly ciAccountId: string;
+	readonly prodAccountId: string;
+	readonly deploymentType: 'feature' | 'release';
+	readonly serviceCode: string;
+	readonly serviceName: string;
+	readonly serviceOwner: string;
+	readonly sourceBranch: string;
+	readonly uniquePrefix: string;
+}
 
 export class DeploymentPipeline extends Stack {
 
-	constructor(scope: Construct, id: string, props: {}) {
+	constructor(scope: Construct, id: string, props: Props) {
 		super(scope, id, props);
 
 		const STACK = Stack.of(this);
-		const DEV_ACCOUNT = new CfnParameter(this, 'DevAccountId', {
-			type: 'String',
-			default: '080660350717',
-			description: 'TBC'
-		});
-		const DEPLOYMENT_TYPE = new CfnParameter(this, 'DeploymentType', {
-			allowedValues: ['feature', 'release'],
-			type: 'String',
-			default: 'feature',
-			description: 'TBC'
-		});
-		const SERVICE_CODE = new CfnParameter(this, 'ServiceCode', {
-			type: 'String',
-			description: 'TBC'
-		});
-		const SERVICE_NAME = new CfnParameter(this, 'ServiceName', {
-			type: 'String',
-			description: 'TBC'
-		});
-		const SERVICE_OWNER = new CfnParameter(this, 'ServiceOwner', {
-			type: 'String',
-			description: 'TBC'
-		});
-		const SOURCE_BRANCH = new CfnParameter(this, 'SourceBranch', {
-			type: 'String',
-			default: 'master',
-			description: 'TBC'
-		});
-		const UNIQUE_PREFIX = new CfnParameter(this, 'UniquePrefix', {
-			description: 'TBC',
-			type: 'String',
-		});
 
-		const PREFIX = `${UNIQUE_PREFIX.value}-${DEPLOYMENT_TYPE.value}-${STACK.region}`;
+		const PREFIX = `${props.uniquePrefix}-${props.deploymentType}-${STACK.region}`;
 
-		Tag.add(this, 'Deployment', `${DEPLOYMENT_TYPE.value}`);
-		Tag.add(this, 'ServiceCode', `${SERVICE_CODE.value}`);
-		Tag.add(this, 'ServiceName', `${SERVICE_NAME.value}`);
-		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
+		Tag.add(this, 'Deployment', `${props.deploymentType}`);
+		Tag.add(this, 'ServiceCode', `${props.serviceCode}`);
+		Tag.add(this, 'ServiceName', `${props.serviceName}`);
+		Tag.add(this, 'ServiceOwner', `${props.serviceOwner}`);
 
-		const devPipelineAutomationRole = Role.fromRoleArn(this, 'DevPipelineAutomationRole', `arn:aws:iam::${DEV_ACCOUNT.value}:role/PipelineAutomationRole`);
+		const devPipelineAutomationRole = Role.fromRoleArn(this, 'DevPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`);
+		const ciPipelineAutomationRole = Role.fromRoleArn(this, 'CIPipelineAutomationRole', `arn:aws:iam::${props.ciAccountId}:role/PipelineAutomationRole`);
+		const prodPipelineAutomationRole = Role.fromRoleArn(this, 'ProdPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`);
 		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'MgmtPipelineAutomationRole', `arn:aws:iam::${STACK.account}:role/PipelineAutomationRole`);
 		const oauthToken = SecretValue.secretsManager('GitHubToken');
 		const infrastructureSourceOutput = new Artifact('SourceOutput');
 
 		const encryptionKey = new Key(this, 'FeatureKMSKey', {
-			alias: `alias/${UNIQUE_PREFIX.value}/${STACK.region}/${DEPLOYMENT_TYPE.value}/key`,
-			description: `KMS key for the ${DEPLOYMENT_TYPE.value} pipeline`,
+			alias: `alias/${props.uniquePrefix}/${STACK.region}/${props.deploymentType}/key`,
+			description: `KMS key for the ${props.deploymentType} pipeline`,
 			enableKeyRotation: false,
 			removalPolicy: RemovalPolicy.DESTROY
 		});
@@ -151,138 +133,299 @@ export class DeploymentPipeline extends Stack {
 		const cdkBuildOutput = new Artifact('CDKBuildOutput');
 		const lambdaBuildOutput = new Artifact('LambdaBuildOutput');
 
-		new Pipeline(this, 'DeploymentPipeline', {
+		const deploymentPipeline = new Pipeline(this, 'DeploymentPipeline', {
 			artifactBucket,
 			pipelineName: `${PREFIX}-deployment-pipeline`,
 			restartExecutionOnUpdate: false,
 			role: mgmtPipelineAutomationRole,
-			stages: [
-				{
-					stageName: 'Source',
-					actions: [new GitHubSourceAction({
-						actionName: 'Source',
-						owner: 'AlexBMet',
-						repo: 'AlexBCdkRepo',
-						branch: `${SOURCE_BRANCH.value}`,
-						oauthToken,
-						output: infrastructureSourceOutput,
-					})],
-				},
-				{
-					stageName: 'Build',
-					actions: [
-						new CodeBuildAction({
-							actionName: 'SynthesiseTemplates',
-							project: cdkBuild,
-							input: infrastructureSourceOutput,
-							outputs: [cdkBuildOutput],
-							runOrder: 1
-						}),
-						new CodeBuildAction({
-							actionName: 'BuildLambda',
-							project: lambdaBuild,
-							input: infrastructureSourceOutput,
-							outputs: [lambdaBuildOutput],
-							runOrder: 2
-						})
-					]
-				},
-				{
-					actions: [
-						new CloudFormationCreateUpdateStackAction({
-							account: '080660350717',
-							actionName: 'DeployDatabase',
-							adminPermissions: false,
-							deploymentRole: devPipelineAutomationRole,
-							parameterOverrides: {
-								'Environment': 'dev',
-								'ServiceCode': `${SERVICE_CODE.value}`,
-								'ServiceName': `${SERVICE_NAME.value}`,
-								'ServiceOwner': `${SERVICE_OWNER.value}`,
-								'UniquePrefix': `${UNIQUE_PREFIX.value}`
-							},
-							role: devPipelineAutomationRole,
-							runOrder: 1,
-							stackName: `${PREFIX}-database`,
-							templatePath: cdkBuildOutput.atPath('database.template.yaml')
-						}),
-						new CloudFormationCreateUpdateStackAction({
-							account: '080660350717',
-							actionName: 'DeployAPILayer',
-							adminPermissions: false,
-							capabilities: [CloudFormationCapabilities.NAMED_IAM],
-							deploymentRole: devPipelineAutomationRole,
-							extraInputs: [lambdaBuildOutput],
-							parameterOverrides: {
-								'Environment': 'dev',
-								'ServiceCode': `${SERVICE_CODE.value}`,
-								'ServiceName': `${SERVICE_NAME.value}`,
-								'ServiceOwner': `${SERVICE_OWNER.value}`,
-								'SourceBucketName': `${lambdaBuildOutput.bucketName}`,
-								'SourceObjectKey': `${lambdaBuildOutput.objectKey}`,
-								'UniquePrefix': `${UNIQUE_PREFIX.value}`
-							},
-							role: devPipelineAutomationRole,
-							runOrder: 2,
-							stackName: `${PREFIX}-api-layer`,
-							templatePath: cdkBuildOutput.atPath('api.template.yaml')
-						}),
-						new CloudFormationCreateUpdateStackAction({
-							account: '080660350717',
-							actionName: 'DeployClient',
-							adminPermissions: false,
-							deploymentRole: devPipelineAutomationRole,
-							parameterOverrides: {
-								'Environment': 'dev',
-								'ServiceCode': `${SERVICE_CODE.value}`,
-								'ServiceName': `${SERVICE_NAME.value}`,
-								'ServiceOwner': `${SERVICE_OWNER.value}`,
-								'UniquePrefix': `${UNIQUE_PREFIX.value}`
-							},
-							role: devPipelineAutomationRole,
-							runOrder: 3,
-							stackName: `${PREFIX}-client`,
-							templatePath: cdkBuildOutput.atPath('client.template.yaml')
-						})
-					],
-					stageName: 'DeployToDev'
-				},
-				{
-					actions: [
-						new ManualApprovalAction({
-							actionName: 'Approve',
-							additionalInformation: 'Teardown the dev environment?',
-							runOrder: 1
-						}),
-						new CloudFormationDeleteStackAction({
-							actionName: 'TeardownClient',
-							adminPermissions: false,
-							deploymentRole: devPipelineAutomationRole,
-							role: devPipelineAutomationRole,
-							runOrder: 2,
-							stackName: `${PREFIX}-client`,
-						}),
-						new CloudFormationDeleteStackAction({
-							actionName: 'TeardownAPILayer',
-							adminPermissions: false,
-							deploymentRole: devPipelineAutomationRole,
-							role: devPipelineAutomationRole,
-							runOrder: 3,
-							stackName: `${PREFIX}-api-layer`,
-						}),
-						new CloudFormationDeleteStackAction({
-							actionName: 'TeardownDatabase',
-							adminPermissions: false,
-							deploymentRole: devPipelineAutomationRole,
-							role: devPipelineAutomationRole,
-							runOrder: 4,
-							stackName: `${PREFIX}-database`,
-						})
-					],
-					stageName: 'DevTeardown'
-				}
-			]
+			stages: []
 		});
+
+		const sourceStage = deploymentPipeline.addStage({
+			stageName: 'Source',
+			actions: [new GitHubSourceAction({
+				actionName: 'Source',
+				owner: 'AlexBMet',
+				repo: 'AlexBCdkRepo',
+				branch: `${props.sourceBranch}`,
+				oauthToken,
+				output: infrastructureSourceOutput,
+			})],
+		});
+
+		const buildStage = deploymentPipeline.addStage({
+			stageName: 'Build',
+			actions: [
+				new CodeBuildAction({
+					actionName: 'SynthesiseTemplates',
+					project: cdkBuild,
+					input: infrastructureSourceOutput,
+					outputs: [cdkBuildOutput],
+					runOrder: 1
+				}),
+				new CodeBuildAction({
+					actionName: 'BuildLambda',
+					project: lambdaBuild,
+					input: infrastructureSourceOutput,
+					outputs: [lambdaBuildOutput],
+					runOrder: 2
+				})
+			],
+			placement: {
+				justAfter: sourceStage
+			}
+		});
+
+		const stage1DeployDatabaseAction = new CloudFormationCreateUpdateStackAction({
+			account: props.deploymentType === 'release' ? props.ciAccountId : props.devAccountId,
+			actionName: 'DeployDatabase',
+			adminPermissions: false,
+			deploymentRole: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			parameterOverrides: {
+				'Environment': props.deploymentType === 'release' ? 'stg' : 'dev',
+				'ServiceCode': `${props.serviceCode}`,
+				'ServiceName': `${props.serviceName}`,
+				'ServiceOwner': `${props.serviceOwner}`,
+				'UniquePrefix': `${props.uniquePrefix}`
+			},
+			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			runOrder: 1,
+			stackName: `${PREFIX}-database`,
+			templatePath: cdkBuildOutput.atPath('database.template.yaml')
+		});
+
+		const stage2DeployDatabaseAction = new CloudFormationCreateUpdateStackAction({
+			account: props.deploymentType === 'release' ? props.prodAccountId : props.ciAccountId,
+			actionName: 'DeployDatabase',
+			adminPermissions: false,
+			deploymentRole: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			parameterOverrides: {
+				'Environment': props.deploymentType === 'release' ? 'prod' : 'ci',
+				'ServiceCode': `${props.serviceCode}`,
+				'ServiceName': `${props.serviceName}`,
+				'ServiceOwner': `${props.serviceOwner}`,
+				'UniquePrefix': `${props.uniquePrefix}`
+			},
+			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			runOrder: 1,
+			stackName: `${PREFIX}-database`,
+			templatePath: cdkBuildOutput.atPath('database.template.yaml')
+		});
+
+		const stage1DeployAPILayerAction = new CloudFormationCreateUpdateStackAction({
+			account: props.deploymentType === 'release' ? props.ciAccountId : props.devAccountId,
+			actionName: 'DeployAPILayer',
+			adminPermissions: false,
+			capabilities: [CloudFormationCapabilities.NAMED_IAM],
+			deploymentRole: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			extraInputs: [lambdaBuildOutput],
+			parameterOverrides: {
+				'Environment': props.deploymentType === 'release' ? 'stg' : 'dev',
+				'ServiceCode': `${props.serviceCode}`,
+				'ServiceName': `${props.serviceName}`,
+				'ServiceOwner': `${props.serviceOwner}`,
+				'SourceBucketName': `${lambdaBuildOutput.bucketName}`,
+				'SourceObjectKey': `${lambdaBuildOutput.objectKey}`,
+				'UniquePrefix': `${props.uniquePrefix}`
+			},
+			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			runOrder: 2,
+			stackName: `${PREFIX}-api-layer`,
+			templatePath: cdkBuildOutput.atPath('api.template.yaml')
+		});
+
+		const stage2DeployAPILayerAction = new CloudFormationCreateUpdateStackAction({
+			account: props.deploymentType === 'release' ? props.prodAccountId : props.ciAccountId,
+			actionName: 'DeployAPILayer',
+			adminPermissions: false,
+			capabilities: [CloudFormationCapabilities.NAMED_IAM],
+			deploymentRole: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			extraInputs: [lambdaBuildOutput],
+			parameterOverrides: {
+				'Environment': props.deploymentType === 'release' ? 'prod' : 'ci',
+				'ServiceCode': `${props.serviceCode}`,
+				'ServiceName': `${props.serviceName}`,
+				'ServiceOwner': `${props.serviceOwner}`,
+				'SourceBucketName': `${lambdaBuildOutput.bucketName}`,
+				'SourceObjectKey': `${lambdaBuildOutput.objectKey}`,
+				'UniquePrefix': `${props.uniquePrefix}`
+			},
+			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			runOrder: 2,
+			stackName: `${PREFIX}-api-layer`,
+			templatePath: cdkBuildOutput.atPath('api.template.yaml')
+		});
+
+		const stage1DeployClientAction = new CloudFormationCreateUpdateStackAction({
+			account: props.deploymentType === 'release' ? props.ciAccountId : props.devAccountId,
+			actionName: 'DeployClient',
+			adminPermissions: false,
+			deploymentRole: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			parameterOverrides: {
+				'Environment': props.deploymentType === 'release' ? 'stg' : 'dev',
+				'ServiceCode': `${props.serviceCode}`,
+				'ServiceName': `${props.serviceName}`,
+				'ServiceOwner': `${props.serviceOwner}`,
+				'UniquePrefix': `${props.uniquePrefix}`
+			},
+			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			runOrder: 3,
+			stackName: `${PREFIX}-client`,
+			templatePath: cdkBuildOutput.atPath('client.template.yaml')
+		});
+
+		const stage2DeployClientAction = new CloudFormationCreateUpdateStackAction({
+			account: props.deploymentType === 'release' ? props.prodAccountId : props.ciAccountId,
+			actionName: 'DeployClient',
+			adminPermissions: false,
+			deploymentRole: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			parameterOverrides: {
+				'Environment': props.deploymentType === 'release' ? 'prod' : 'ci',
+				'ServiceCode': `${props.serviceCode}`,
+				'ServiceName': `${props.serviceName}`,
+				'ServiceOwner': `${props.serviceOwner}`,
+				'UniquePrefix': `${props.uniquePrefix}`
+			},
+			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			runOrder: 3,
+			stackName: `${PREFIX}-client`,
+			templatePath: cdkBuildOutput.atPath('client.template.yaml')
+		});
+
+		if (props.deploymentType === 'feature') {
+			const deployDevStage = deploymentPipeline.addStage({
+				actions: [
+					stage1DeployDatabaseAction,
+					stage1DeployAPILayerAction,
+					stage1DeployClientAction
+				],
+				placement: {
+					justAfter: buildStage
+				},
+				stageName: 'DeployToDev',
+			});
+
+			const deployCIStage = deploymentPipeline.addStage({
+				actions: [
+					stage2DeployDatabaseAction,
+					stage2DeployAPILayerAction,
+					stage2DeployClientAction
+				],
+				placement: {
+					justAfter: deployDevStage
+				},
+				stageName: 'DeployToCI',
+			});
+
+			const teardownCIStage = deploymentPipeline.addStage({
+				actions: [
+					new ManualApprovalAction({
+						actionName: 'Approve',
+						additionalInformation: 'Teardown the CI environment?',
+						runOrder: 1
+					}),
+					new CloudFormationDeleteStackAction({
+						actionName: 'TeardownClient',
+						adminPermissions: false,
+						deploymentRole: ciPipelineAutomationRole,
+						role: ciPipelineAutomationRole,
+						runOrder: 2,
+						stackName: `${PREFIX}-client`,
+					}),
+					new CloudFormationDeleteStackAction({
+						actionName: 'TeardownAPILayer',
+						adminPermissions: false,
+						deploymentRole: ciPipelineAutomationRole,
+						role: ciPipelineAutomationRole,
+						runOrder: 3,
+						stackName: `${PREFIX}-api-layer`,
+					}),
+					new CloudFormationDeleteStackAction({
+						actionName: 'TeardownDatabase',
+						adminPermissions: false,
+						deploymentRole: ciPipelineAutomationRole,
+						role: ciPipelineAutomationRole,
+						runOrder: 4,
+						stackName: `${PREFIX}-database`,
+					})
+				],
+				placement: {
+					justAfter: deployCIStage
+				},
+				stageName: 'CITeardown'
+			});
+
+			deploymentPipeline.addStage({
+				actions: [
+					new ManualApprovalAction({
+						actionName: 'Approve',
+						additionalInformation: 'Teardown the dev environment?',
+						runOrder: 1
+					}),
+					new CloudFormationDeleteStackAction({
+						actionName: 'TeardownClient',
+						adminPermissions: false,
+						deploymentRole: devPipelineAutomationRole,
+						role: devPipelineAutomationRole,
+						runOrder: 2,
+						stackName: `${PREFIX}-client`,
+					}),
+					new CloudFormationDeleteStackAction({
+						actionName: 'TeardownAPILayer',
+						adminPermissions: false,
+						deploymentRole: devPipelineAutomationRole,
+						role: devPipelineAutomationRole,
+						runOrder: 3,
+						stackName: `${PREFIX}-api-layer`,
+					}),
+					new CloudFormationDeleteStackAction({
+						actionName: 'TeardownDatabase',
+						adminPermissions: false,
+						deploymentRole: devPipelineAutomationRole,
+						role: devPipelineAutomationRole,
+						runOrder: 4,
+						stackName: `${PREFIX}-database`,
+					})
+				],
+				placement: {
+					justAfter: teardownCIStage
+				},
+				stageName: 'DevTeardown'
+			});
+		}
+
+		if (props.deploymentType === 'release') {
+			const deployStgStage = deploymentPipeline.addStage({
+				actions: [
+					new ManualApprovalAction({
+						actionName: 'Approve',
+						additionalInformation: 'Deploy to the staging environment?'
+					}),
+					stage1DeployDatabaseAction,
+					stage1DeployAPILayerAction,
+					stage1DeployClientAction
+				],
+				placement: {
+					justAfter: buildStage
+				},
+				stageName: 'DeployToStg',
+			});
+			deploymentPipeline.addStage({
+				actions: [
+					new ManualApprovalAction({
+						actionName: 'Approve',
+						additionalInformation: 'Deploy to the production environment?'
+					}),
+					stage2DeployDatabaseAction,
+					stage2DeployAPILayerAction,
+					stage2DeployClientAction
+				],
+				placement: {
+					justAfter: deployStgStage
+				},
+				stageName: 'DeployToProd',
+			});
+		}
 
 		artifactBucket.addToResourcePolicy(
 			new PolicyStatement({
@@ -328,7 +471,7 @@ export class DeploymentPipeline extends Stack {
 				's3:ListBucket'
 			],
 			effect: Effect.ALLOW,
-			principals: [new AccountPrincipal(STACK.account), new AccountPrincipal(DEV_ACCOUNT.value)],
+			principals: [new AccountPrincipal(STACK.account), new AccountPrincipal(props.devAccountId), new AccountPrincipal(props.ciAccountId), new AccountPrincipal(props.prodAccountId)],
 			resources: [
 				`${artifactBucket.bucketArn}`,
 				`${artifactBucket.bucketArn}/*`

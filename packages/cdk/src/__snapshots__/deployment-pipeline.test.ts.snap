@@ -1,44 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`[deployment-pipeline.ts] unit tests [stack] must create a CodePipeline 1`] = `
+exports[`[deployment-pipeline.ts] unit tests [stack] must create a feature CodePipeline 1`] = `
 Object {
-  "Parameters": Object {
-    "DeploymentType": Object {
-      "AllowedValues": Array [
-        "feature",
-        "release",
-      ],
-      "Default": "feature",
-      "Description": "TBC",
-      "Type": "String",
-    },
-    "DevAccountId": Object {
-      "Default": "080660350717",
-      "Description": "TBC",
-      "Type": "String",
-    },
-    "ServiceCode": Object {
-      "Description": "TBC",
-      "Type": "String",
-    },
-    "ServiceName": Object {
-      "Description": "TBC",
-      "Type": "String",
-    },
-    "ServiceOwner": Object {
-      "Description": "TBC",
-      "Type": "String",
-    },
-    "SourceBranch": Object {
-      "Default": "master",
-      "Description": "TBC",
-      "Type": "String",
-    },
-    "UniquePrefix": Object {
-      "Description": "TBC",
-      "Type": "String",
-    },
-  },
   "Resources": Object {
     "ArtifactBucket7410C9EF": Object {
       "DeletionPolicy": "Delete",
@@ -62,14 +25,7 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "-",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              "-",
+              "ghostrider-feature-",
               Object {
                 "Ref": "AWS::Region",
               },
@@ -80,27 +36,19 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -232,11 +180,31 @@ Object {
                         Object {
                           "Ref": "AWS::Partition",
                         },
-                        ":iam::",
+                        ":iam::123:root",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
                         Object {
-                          "Ref": "DevAccountId",
+                          "Ref": "AWS::Partition",
                         },
-                        ":root",
+                        ":iam::456:root",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::789:root",
                       ],
                     ],
                   },
@@ -356,14 +324,7 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "-",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              "-",
+              "ghostrider-feature-",
               Object {
                 "Ref": "AWS::Region",
               },
@@ -416,31 +377,259 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
       "Type": "AWS::CodeBuild::Project",
+    },
+    "CIPipelineAutomationRolePolicy2B34DB77": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": Array [
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "cloudformation:CreateStack",
+                "cloudformation:DescribeStack*",
+                "cloudformation:GetStackPolicy",
+                "cloudformation:GetTemplate*",
+                "cloudformation:SetStackPolicy",
+                "cloudformation:UpdateStack",
+                "cloudformation:ValidateTemplate",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-database/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-api-layer/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-client/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "cloudformation:DeleteStack",
+                "cloudformation:DescribeStack*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-client/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-api-layer/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-database/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CIPipelineAutomationRolePolicy2B34DB77",
+        "Roles": Array [
+          "PipelineAutomationRole",
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7": Object {
       "Properties": Object {
@@ -474,27 +663,19 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -562,27 +743,19 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -618,6 +791,56 @@ Object {
       },
       "Type": "AWS::IAM::Policy",
     },
+    "DeploymentPipelineCITeardownApproveCodePipelineActionRole4945BBD6": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
@@ -650,27 +873,19 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -700,14 +915,7 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "-",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              "-",
+              "ghostrider-feature-",
               Object {
                 "Ref": "AWS::Region",
               },
@@ -739,9 +947,7 @@ Object {
                   "Version": "1",
                 },
                 "Configuration": Object {
-                  "Branch": Object {
-                    "Ref": "SourceBranch",
-                  },
+                  "Branch": "master",
                   "OAuthToken": "{{resolve:secretsmanager:GitHubToken:SecretString:::}}",
                   "Owner": "AlexBMet",
                   "PollForSourceChanges": false,
@@ -836,54 +1042,13 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"",
-                        Object {
-                          "Ref": "ServiceCode",
-                        },
-                        "\\",\\"ServiceName\\":\\"",
-                        Object {
-                          "Ref": "ServiceName",
-                        },
-                        "\\",\\"ServiceOwner\\":\\"",
-                        Object {
-                          "Ref": "ServiceOwner",
-                        },
-                        "\\",\\"UniquePrefix\\":\\"",
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "\\"}",
-                      ],
-                    ],
-                  },
-                  "RoleArn": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "arn:aws:iam::",
-                        Object {
-                          "Ref": "DevAccountId",
-                        },
-                        ":role/PipelineAutomationRole",
-                      ],
-                    ],
-                  },
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
                       "",
                       Array [
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "-",
-                        Object {
-                          "Ref": "DeploymentType",
-                        },
-                        "-",
+                        "ghostrider-feature-",
                         Object {
                           "Ref": "AWS::Region",
                         },
@@ -899,18 +1064,7 @@ Object {
                   },
                 ],
                 "Name": "DeployDatabase",
-                "RoleArn": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 1,
               },
               Object {
@@ -923,54 +1077,13 @@ Object {
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
                   "Capabilities": "CAPABILITY_NAMED_IAM",
-                  "ParameterOverrides": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"",
-                        Object {
-                          "Ref": "ServiceCode",
-                        },
-                        "\\",\\"ServiceName\\":\\"",
-                        Object {
-                          "Ref": "ServiceName",
-                        },
-                        "\\",\\"ServiceOwner\\":\\"",
-                        Object {
-                          "Ref": "ServiceOwner",
-                        },
-                        "\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"",
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "\\"}",
-                      ],
-                    ],
-                  },
-                  "RoleArn": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "arn:aws:iam::",
-                        Object {
-                          "Ref": "DevAccountId",
-                        },
-                        ":role/PipelineAutomationRole",
-                      ],
-                    ],
-                  },
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
                       "",
                       Array [
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "-",
-                        Object {
-                          "Ref": "DeploymentType",
-                        },
-                        "-",
+                        "ghostrider-feature-",
                         Object {
                           "Ref": "AWS::Region",
                         },
@@ -989,18 +1102,7 @@ Object {
                   },
                 ],
                 "Name": "DeployAPILayer",
-                "RoleArn": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 2,
               },
               Object {
@@ -1012,54 +1114,13 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"",
-                        Object {
-                          "Ref": "ServiceCode",
-                        },
-                        "\\",\\"ServiceName\\":\\"",
-                        Object {
-                          "Ref": "ServiceName",
-                        },
-                        "\\",\\"ServiceOwner\\":\\"",
-                        Object {
-                          "Ref": "ServiceOwner",
-                        },
-                        "\\",\\"UniquePrefix\\":\\"",
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "\\"}",
-                      ],
-                    ],
-                  },
-                  "RoleArn": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "arn:aws:iam::",
-                        Object {
-                          "Ref": "DevAccountId",
-                        },
-                        ":role/PipelineAutomationRole",
-                      ],
-                    ],
-                  },
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
                       "",
                       Array [
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "-",
-                        Object {
-                          "Ref": "DeploymentType",
-                        },
-                        "-",
+                        "ghostrider-feature-",
                         Object {
                           "Ref": "AWS::Region",
                         },
@@ -1075,22 +1136,227 @@ Object {
                   },
                 ],
                 "Name": "DeployClient",
-                "RoleArn": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 3,
               },
             ],
             "Name": "DeployToDev",
+          },
+          Object {
+            "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-database",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::database.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployDatabase",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-api-layer",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::api.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "LambdaBuildOutput",
+                  },
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployAPILayer",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 2,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-client",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::client.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployClient",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 3,
+              },
+            ],
+            "Name": "DeployToCI",
+          },
+          Object {
+            "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "CustomData": "Teardown the CI environment?",
+                },
+                "Name": "Approve",
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineCITeardownApproveCodePipelineActionRole4945BBD6",
+                    "Arn",
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "DELETE_ONLY",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-client",
+                      ],
+                    ],
+                  },
+                },
+                "Name": "TeardownClient",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 2,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "DELETE_ONLY",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-api-layer",
+                      ],
+                    ],
+                  },
+                },
+                "Name": "TeardownAPILayer",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 3,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "DELETE_ONLY",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-database",
+                      ],
+                    ],
+                  },
+                },
+                "Name": "TeardownDatabase",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 4,
+              },
+            ],
+            "Name": "CITeardown",
           },
           Object {
             "Actions": Array [
@@ -1122,30 +1388,12 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "DELETE_ONLY",
-                  "RoleArn": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "arn:aws:iam::",
-                        Object {
-                          "Ref": "DevAccountId",
-                        },
-                        ":role/PipelineAutomationRole",
-                      ],
-                    ],
-                  },
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
                       "",
                       Array [
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "-",
-                        Object {
-                          "Ref": "DeploymentType",
-                        },
-                        "-",
+                        "ghostrider-feature-",
                         Object {
                           "Ref": "AWS::Region",
                         },
@@ -1155,18 +1403,7 @@ Object {
                   },
                 },
                 "Name": "TeardownClient",
-                "RoleArn": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 2,
               },
               Object {
@@ -1178,30 +1415,12 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "DELETE_ONLY",
-                  "RoleArn": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "arn:aws:iam::",
-                        Object {
-                          "Ref": "DevAccountId",
-                        },
-                        ":role/PipelineAutomationRole",
-                      ],
-                    ],
-                  },
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
                       "",
                       Array [
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "-",
-                        Object {
-                          "Ref": "DeploymentType",
-                        },
-                        "-",
+                        "ghostrider-feature-",
                         Object {
                           "Ref": "AWS::Region",
                         },
@@ -1211,18 +1430,7 @@ Object {
                   },
                 },
                 "Name": "TeardownAPILayer",
-                "RoleArn": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 3,
               },
               Object {
@@ -1234,30 +1442,12 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "DELETE_ONLY",
-                  "RoleArn": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        "arn:aws:iam::",
-                        Object {
-                          "Ref": "DevAccountId",
-                        },
-                        ":role/PipelineAutomationRole",
-                      ],
-                    ],
-                  },
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
                       "",
                       Array [
-                        Object {
-                          "Ref": "UniquePrefix",
-                        },
-                        "-",
-                        Object {
-                          "Ref": "DeploymentType",
-                        },
-                        "-",
+                        "ghostrider-feature-",
                         Object {
                           "Ref": "AWS::Region",
                         },
@@ -1267,18 +1457,7 @@ Object {
                   },
                 },
                 "Name": "TeardownDatabase",
-                "RoleArn": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 4,
               },
             ],
@@ -1288,27 +1467,19 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -1343,78 +1514,12 @@ Object {
               "Action": "iam:PassRole",
               "Effect": "Allow",
               "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
               ],
             },
             Object {
@@ -1488,15 +1593,7 @@ Object {
                       Object {
                         "Ref": "AWS::AccountId",
                       },
-                      ":stack/",
-                      Object {
-                        "Ref": "UniquePrefix",
-                      },
-                      "-",
-                      Object {
-                        "Ref": "DeploymentType",
-                      },
-                      "-",
+                      ":stack/ghostrider-feature-",
                       Object {
                         "Ref": "AWS::Region",
                       },
@@ -1520,15 +1617,7 @@ Object {
                       Object {
                         "Ref": "AWS::AccountId",
                       },
-                      ":stack/",
-                      Object {
-                        "Ref": "UniquePrefix",
-                      },
-                      "-",
-                      Object {
-                        "Ref": "DeploymentType",
-                      },
-                      "-",
+                      ":stack/ghostrider-feature-",
                       Object {
                         "Ref": "AWS::Region",
                       },
@@ -1552,15 +1641,7 @@ Object {
                       Object {
                         "Ref": "AWS::AccountId",
                       },
-                      ":stack/",
-                      Object {
-                        "Ref": "UniquePrefix",
-                      },
-                      "-",
-                      Object {
-                        "Ref": "DeploymentType",
-                      },
-                      "-",
+                      ":stack/ghostrider-feature-",
                       Object {
                         "Ref": "AWS::Region",
                       },
@@ -1593,15 +1674,7 @@ Object {
                       Object {
                         "Ref": "AWS::AccountId",
                       },
-                      ":stack/",
-                      Object {
-                        "Ref": "UniquePrefix",
-                      },
-                      "-",
-                      Object {
-                        "Ref": "DeploymentType",
-                      },
-                      "-",
+                      ":stack/ghostrider-feature-",
                       Object {
                         "Ref": "AWS::Region",
                       },
@@ -1625,15 +1698,7 @@ Object {
                       Object {
                         "Ref": "AWS::AccountId",
                       },
-                      ":stack/",
-                      Object {
-                        "Ref": "UniquePrefix",
-                      },
-                      "-",
-                      Object {
-                        "Ref": "DeploymentType",
-                      },
-                      "-",
+                      ":stack/ghostrider-feature-",
                       Object {
                         "Ref": "AWS::Region",
                       },
@@ -1657,15 +1722,7 @@ Object {
                       Object {
                         "Ref": "AWS::AccountId",
                       },
-                      ":stack/",
-                      Object {
-                        "Ref": "UniquePrefix",
-                      },
-                      "-",
-                      Object {
-                        "Ref": "DeploymentType",
-                      },
-                      "-",
+                      ":stack/ghostrider-feature-",
                       Object {
                         "Ref": "AWS::Region",
                       },
@@ -1680,38 +1737,7 @@ Object {
         },
         "PolicyName": "DevPipelineAutomationRolePolicy522D2F98",
         "Roles": Array [
-          Object {
-            "Fn::Select": Array [
-              1,
-              Object {
-                "Fn::Split": Array [
-                  "/",
-                  Object {
-                    "Fn::Select": Array [
-                      5,
-                      Object {
-                        "Fn::Split": Array [
-                          ":",
-                          Object {
-                            "Fn::Join": Array [
-                              "",
-                              Array [
-                                "arn:aws:iam::",
-                                Object {
-                                  "Ref": "DevAccountId",
-                                },
-                                ":role/PipelineAutomationRole",
-                              ],
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
+          "PipelineAutomationRole",
         ],
       },
       "Type": "AWS::IAM::Policy",
@@ -1722,19 +1748,11 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              "alias/",
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "/",
+              "alias/ghostrider/",
               Object {
                 "Ref": "AWS::Region",
               },
-              "/",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              "/key",
+              "/feature/key",
             ],
           ],
         },
@@ -1750,18 +1768,7 @@ Object {
     "FeatureKMSKeyF1C3E2DD": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "Description": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "KMS key for the ",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              " pipeline",
-            ],
-          ],
-        },
+        "Description": "KMS key for the feature pipeline",
         "EnableKeyRotation": false,
         "KeyPolicy": Object {
           "Statement": Array [
@@ -1860,18 +1867,18 @@ Object {
               ],
               "Effect": "Allow",
               "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:aws:iam::",
-                      Object {
-                        "Ref": "DevAccountId",
-                      },
-                      ":role/PipelineAutomationRole",
-                    ],
-                  ],
-                },
+                "AWS": "arn:aws:iam::123:role/PipelineAutomationRole",
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": "arn:aws:iam::456:role/PipelineAutomationRole",
               },
               "Resource": "*",
             },
@@ -1881,27 +1888,19 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
-            },
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -1929,14 +1928,7 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "-",
-              Object {
-                "Ref": "DeploymentType",
-              },
-              "-",
+              "ghostrider-feature-",
               Object {
                 "Ref": "AWS::Region",
               },
@@ -1987,27 +1979,1801 @@ Object {
         "Tags": Array [
           Object {
             "Key": "Deployment",
-            "Value": Object {
-              "Ref": "DeploymentType",
-            },
+            "Value": "feature",
           },
           Object {
             "Key": "ServiceCode",
-            "Value": Object {
-              "Ref": "ServiceCode",
-            },
+            "Value": "CI",
           },
           Object {
             "Key": "ServiceName",
-            "Value": Object {
-              "Ref": "ServiceName",
-            },
+            "Value": "Continous Integration",
           },
           Object {
             "Key": "ServiceOwner",
-            "Value": Object {
-              "Ref": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "MgmtPipelineAutomationRolePolicy8F4B4040": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "CDKBuild7F70D971",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "CDKBuild7F70D971",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
             },
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "LambdaBuildCF1FE7ED",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "LambdaBuildCF1FE7ED",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRole8FC7A4EC",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::123:role/PipelineAutomationRole",
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::456:role/PipelineAutomationRole",
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineCITeardownApproveCodePipelineActionRole4945BBD6",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "MgmtPipelineAutomationRolePolicy8F4B4040",
+        "Roles": Array [
+          Object {
+            "Fn::Select": Array [
+              1,
+              Object {
+                "Fn::Split": Array [
+                  "/",
+                  Object {
+                    "Fn::Select": Array [
+                      5,
+                      Object {
+                        "Fn::Split": Array [
+                          ":",
+                          Object {
+                            "Fn::Join": Array [
+                              "",
+                              Array [
+                                "arn:aws:iam::",
+                                Object {
+                                  "Ref": "AWS::AccountId",
+                                },
+                                ":role/PipelineAutomationRole",
+                              ],
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+}
+`;
+
+exports[`[deployment-pipeline.ts] unit tests [stack] must create a release CodePipeline 1`] = `
+Object {
+  "Resources": Object {
+    "ArtifactBucket7410C9EF": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "BucketEncryption": Object {
+          "ServerSideEncryptionConfiguration": Array [
+            Object {
+              "ServerSideEncryptionByDefault": Object {
+                "KMSMasterKeyID": Object {
+                  "Fn::GetAtt": Array [
+                    "FeatureKMSKeyF1C3E2DD",
+                    "Arn",
+                  ],
+                },
+                "SSEAlgorithm": "aws:kms",
+              },
+            },
+          ],
+        },
+        "BucketName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-artifact-bucket",
+            ],
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ArtifactBucketPolicy4B4B7752": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "ArtifactBucket7410C9EF",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codebuild.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "ArtifactBucket7410C9EF",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:*",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cloudformation.amazonaws.com",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:DeleteObject",
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:ListBucket",
+                "s3:PutObject",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codepipeline.amazonaws.com",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:ListBucket",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":root",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::123:root",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::456:root",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::789:root",
+                      ],
+                    ],
+                  },
+                ],
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "Null": Object {
+                  "s3:x-amz-server-side-encryption": "true",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": "*",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "s3:*",
+              "Condition": Object {
+                "Bool": Object {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": "*",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "CDKBuild7F70D971": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_MEDIUM",
+          "Image": "aws/codebuild/standard:3.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-cdk-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"npm install -g cdk\\",
+        \\"yarn\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"cd $CODEBUILD_SRC_DIR/packages/cdk\\",
+        \\"cdk synth Client > client.template.yaml\\",
+        \\"cdk synth APILayer > api.template.yaml\\",
+        \\"cdk synth Database > database.template.yaml\\"
+      ]
+    }
+  },
+  \\"artifacts\\": {
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/cdk\\",
+    \\"files\\": [
+      \\"client.template.yaml\\",
+      \\"api.template.yaml\\",
+      \\"database.template.yaml\\"
+    ]
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "CIPipelineAutomationRolePolicy2B34DB77": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": Array [
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+                "arn:aws:iam::456:role/PipelineAutomationRole",
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "cloudformation:CreateStack",
+                "cloudformation:DescribeStack*",
+                "cloudformation:GetStackPolicy",
+                "cloudformation:GetTemplate*",
+                "cloudformation:SetStackPolicy",
+                "cloudformation:UpdateStack",
+                "cloudformation:ValidateTemplate",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-release-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-database/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-release-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-api-layer/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-release-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-client/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CIPipelineAutomationRolePolicy2B34DB77",
+        "Roles": Array [
+          "PipelineAutomationRole",
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeploymentPipelineBuildBuildLambdaCodePipelineActionRoleDefaultPolicy6C546253": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "LambdaBuildCF1FE7ED",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeploymentPipelineBuildBuildLambdaCodePipelineActionRoleDefaultPolicy6C546253",
+        "Roles": Array [
+          Object {
+            "Ref": "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRole8FC7A4EC": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRoleDefaultPolicy40E45B8E": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "CDKBuild7F70D971",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRoleDefaultPolicy40E45B8E",
+        "Roles": Array [
+          Object {
+            "Ref": "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRole8FC7A4EC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeploymentPipelineDeployToProdApproveCodePipelineActionRole9F835894": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeploymentPipelineDeployToStgApproveCodePipelineActionRole5743692A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeploymentPipelineEDAF206A": Object {
+      "DependsOn": Array [
+        "MgmtPipelineAutomationRolePolicy8F4B4040",
+      ],
+      "Properties": Object {
+        "ArtifactStore": Object {
+          "EncryptionKey": Object {
+            "Id": Object {
+              "Fn::GetAtt": Array [
+                "FeatureKMSKeyF1C3E2DD",
+                "Arn",
+              ],
+            },
+            "Type": "KMS",
+          },
+          "Location": Object {
+            "Ref": "ArtifactBucket7410C9EF",
+          },
+          "Type": "S3",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-deployment-pipeline",
+            ],
+          ],
+        },
+        "RestartExecutionOnUpdate": false,
+        "RoleArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Stages": Array [
+          Object {
+            "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Source",
+                  "Owner": "ThirdParty",
+                  "Provider": "GitHub",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "Branch": "master",
+                  "OAuthToken": "{{resolve:secretsmanager:GitHubToken:SecretString:::}}",
+                  "Owner": "AlexBMet",
+                  "PollForSourceChanges": false,
+                  "Repo": "AlexBCdkRepo",
+                },
+                "Name": "Source",
+                "OutputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "RunOrder": 1,
+              },
+            ],
+            "Name": "Source",
+          },
+          Object {
+            "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ProjectName": Object {
+                    "Ref": "CDKBuild7F70D971",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "SynthesiseTemplates",
+                "OutputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineBuildSynthesiseTemplatesCodePipelineActionRole8FC7A4EC",
+                    "Arn",
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ProjectName": Object {
+                    "Ref": "LambdaBuildCF1FE7ED",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "BuildLambda",
+                "OutputArtifacts": Array [
+                  Object {
+                    "Name": "LambdaBuildOutput",
+                  },
+                ],
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineBuildBuildLambdaCodePipelineActionRole1C9193E7",
+                    "Arn",
+                  ],
+                },
+                "RunOrder": 2,
+              },
+            ],
+            "Name": "Build",
+          },
+          Object {
+            "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "CustomData": "Deploy to the staging environment?",
+                },
+                "Name": "Approve",
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineDeployToStgApproveCodePipelineActionRole5743692A",
+                    "Arn",
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-database",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::database.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployDatabase",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-api-layer",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::api.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "LambdaBuildOutput",
+                  },
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployAPILayer",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 2,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-client",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::client.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployClient",
+                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RunOrder": 3,
+              },
+            ],
+            "Name": "DeployToStg",
+          },
+          Object {
+            "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "CustomData": "Deploy to the production environment?",
+                },
+                "Name": "Approve",
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineDeployToProdApproveCodePipelineActionRole9F835894",
+                    "Arn",
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-database",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::database.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployDatabase",
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-api-layer",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::api.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "LambdaBuildOutput",
+                  },
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployAPILayer",
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                "RunOrder": 2,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-client",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::client.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployClient",
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                "RunOrder": 3,
+              },
+            ],
+            "Name": "DeployToProd",
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::CodePipeline::Pipeline",
+    },
+    "DeploymentPipelineSourceWebhookResource70374C7A": Object {
+      "Properties": Object {
+        "Authentication": "GITHUB_HMAC",
+        "AuthenticationConfiguration": Object {
+          "SecretToken": "{{resolve:secretsmanager:GitHubToken:SecretString:::}}",
+        },
+        "Filters": Array [
+          Object {
+            "JsonPath": "$.ref",
+            "MatchEquals": "refs/heads/{Branch}",
+          },
+        ],
+        "RegisterWithThirdParty": true,
+        "TargetAction": "Source",
+        "TargetPipeline": Object {
+          "Ref": "DeploymentPipelineEDAF206A",
+        },
+        "TargetPipelineVersion": 1,
+      },
+      "Type": "AWS::CodePipeline::Webhook",
+    },
+    "FeatureKMSKeyAlias7ACEBE30": Object {
+      "Properties": Object {
+        "AliasName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "alias/ghostrider/",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "/release/key",
+            ],
+          ],
+        },
+        "TargetKeyId": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::KMS::Alias",
+    },
+    "FeatureKMSKeyF1C3E2DD": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "Description": "KMS key for the release pipeline",
+        "EnableKeyRotation": false,
+        "KeyPolicy": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion",
+                "kms:GenerateDataKey",
+                "kms:TagResource",
+                "kms:UntagResource",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": "arn:aws:iam::456:role/PipelineAutomationRole",
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": "arn:aws:iam::123:role/PipelineAutomationRole",
+              },
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
+          },
+        ],
+      },
+      "Type": "AWS::KMS::Key",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LambdaBuildCF1FE7ED": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_MEDIUM",
+          "Image": "aws/codebuild/standard:3.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-lambda-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"yarn\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"cd $CODEBUILD_SRC_DIR/packages/lambda\\",
+        \\"yarn build\\",
+        \\"cd $CODEBUILD_SRC_DIR\\",
+        \\"yarn install --production --ignore-scripts --prefer-offline\\"
+      ]
+    }
+  },
+  \\"artifacts\\": {
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/lambda\\",
+    \\"files\\": [
+      \\"dist/*\\",
+      \\"node_modules/*\\"
+    ]
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+          Object {
+            "Key": "ServiceCode",
+            "Value": "CI",
+          },
+          Object {
+            "Key": "ServiceName",
+            "Value": "Continous Integration",
+          },
+          Object {
+            "Key": "ServiceOwner",
+            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -2219,27 +3985,31 @@ Object {
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
               "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:iam::",
-                    Object {
-                      "Ref": "DevAccountId",
-                    },
-                    ":role/PipelineAutomationRole",
-                  ],
+                "Fn::GetAtt": Array [
+                  "DeploymentPipelineDeployToStgApproveCodePipelineActionRole5743692A",
+                  "Arn",
                 ],
               },
             },
             Object {
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
+              "Resource": "arn:aws:iam::456:role/PipelineAutomationRole",
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
               "Resource": Object {
                 "Fn::GetAtt": Array [
-                  "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606",
+                  "DeploymentPipelineDeployToProdApproveCodePipelineActionRole9F835894",
                   "Arn",
                 ],
               },
+            },
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::123:role/PipelineAutomationRole",
             },
           ],
           "Version": "2012-10-17",
@@ -2278,6 +4048,158 @@ Object {
               },
             ],
           },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ProdPipelineAutomationRolePolicy26383E4A": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": Array [
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+                "arn:aws:iam::123:role/PipelineAutomationRole",
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "cloudformation:CreateStack",
+                "cloudformation:DescribeStack*",
+                "cloudformation:GetStackPolicy",
+                "cloudformation:GetTemplate*",
+                "cloudformation:SetStackPolicy",
+                "cloudformation:UpdateStack",
+                "cloudformation:ValidateTemplate",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-release-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-database/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-release-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-api-layer/*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":cloudformation:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":stack/ghostrider-release-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-client/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ProdPipelineAutomationRolePolicy26383E4A",
+        "Roles": Array [
+          "PipelineAutomationRole",
         ],
       },
       "Type": "AWS::IAM::Policy",

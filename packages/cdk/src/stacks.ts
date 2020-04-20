@@ -12,6 +12,16 @@ new APILayer(stacks, 'APILayer', {});
 
 new Database(stacks, 'Database', {});
 
-new DeploymentPipeline(stacks, 'DeploymentPipeline', {});
+new DeploymentPipeline(stacks, 'DeploymentPipeline', {
+	devAccountId: '080660350717',
+	ciAccountId: '896187182741',
+	prodAccountId: '080660350717',
+	deploymentType: 'feature',
+	serviceCode: 'WINCCC',
+	serviceName: 'Cloud Team',
+	serviceOwner: 'Cloud Team',
+	sourceBranch: 'matt2-cdk-pipeline',
+	uniquePrefix: 'matt3'
+});
 
 stacks.synth();
