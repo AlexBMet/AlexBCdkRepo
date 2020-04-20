@@ -12,8 +12,8 @@
 Coming soon...
 
 ### Pre-requisites
-To clone and run this application, you'll need **[Git](https://git-scm.com)**, **[Node.js](https://nodejs.org/en/)** 
-and **[Yarn](https://yarnpkg.com/lang/en/)** installed on your computer.
+To clone and run this application, you'll need **[Git](https://git-scm.com)**, **[Node.js](https://nodejs.org/en/)**, 
+**[Yarn](https://yarnpkg.com/lang/en/)** and the **[AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/home.html)** installed on your computer.
 
 ## How to use
 From your favourite command line tool, run the following:
@@ -23,4 +23,8 @@ $ git clone git@github.com:AlexBMet/AlexBCdkRepo.git
 
 # Install dependencies
 $ yarn
+
+# Synthesize pipeline
+$ cd packages/cdk
+$ cdk synth DeploymentPipeline > template.yaml
 ```
