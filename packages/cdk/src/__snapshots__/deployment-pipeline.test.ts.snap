@@ -1293,7 +1293,18 @@ Object {
     "FeatureKMSKeyF1C3E2DD": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "Description": "KMS key for the feature pipeline",
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "KMS key for the feature pipeline for ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              " stack",
+            ],
+          ],
+        },
         "EnableKeyRotation": false,
         "KeyPolicy": Object {
           "Statement": Array [
@@ -2647,7 +2658,18 @@ Object {
     "FeatureKMSKeyF1C3E2DD": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "Description": "KMS key for the release pipeline",
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "KMS key for the release pipeline for ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              " stack",
+            ],
+          ],
+        },
         "EnableKeyRotation": false,
         "KeyPolicy": Object {
           "Statement": Array [
