@@ -395,56 +395,6 @@ Object {
       },
       "Type": "AWS::CodeBuild::Project",
     },
-    "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
-                  ],
-                },
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "feature",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
     "DeploymentPipelineEDAF206A": Object {
       "Properties": Object {
         "ArtifactStore": Object {
@@ -940,12 +890,7 @@ Object {
                   "CustomData": "Teardown the dev environment?",
                 },
                 "Name": "Approve",
-                "RoleArn": Object {
-                  "Fn::GetAtt": Array [
-                    "DeploymentPipelineDevTeardownApproveCodePipelineActionRole0F9EE606",
-                    "Arn",
-                  ],
-                },
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 1,
               },
               Object {

@@ -367,6 +367,7 @@ export class DeploymentPipeline extends Stack {
 					new ManualApprovalAction({
 						actionName: 'Approve',
 						additionalInformation: 'Teardown the dev environment?',
+						role: devPipelineAutomationRole,
 						runOrder: 1
 					}),
 					new CloudFormationDeleteStackAction({
