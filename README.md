@@ -43,3 +43,16 @@ $ cdk synth DeploymentPipeline > template.yaml
 $ cdk deploy DeploymentPipeline --profile **Insert the name of your AWS profile**
 ```
 
+## Lint & Test
+```
+## In root/packages/cdk 
+# Run linter  
+$ yarn run lint.ci
+
+# Run tests
+$ yarn run test
+
+# Update test snapshots
+$ yarn test -u
+```
+

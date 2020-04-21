@@ -39,10 +39,12 @@ export class DeploymentPipeline extends Stack {
 		Tag.add(this, 'ServiceName', `${props.serviceName}`);
 		Tag.add(this, 'ServiceOwner', `${props.serviceOwner}`);
 
-		const devPipelineAutomationRole = Role.fromRoleArn(this, 'DevPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`);
-		const ciPipelineAutomationRole = Role.fromRoleArn(this, 'CIPipelineAutomationRole', `arn:aws:iam::${props.ciAccountId}:role/PipelineAutomationRole`);
-		const prodPipelineAutomationRole = Role.fromRoleArn(this, 'ProdPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`);
-		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'MgmtPipelineAutomationRole', `arn:aws:iam::${STACK.account}:role/PipelineAutomationRole`);
+		// Use existing PARs without attaching additional policy
+		const devPipelineAutomationRole = Role.fromRoleArn(this, 'DevPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`, { mutable: false });
+		const ciPipelineAutomationRole = Role.fromRoleArn(this, 'CIPipelineAutomationRole', `arn:aws:iam::${props.ciAccountId}:role/PipelineAutomationRole`, { mutable: false });
+		const prodPipelineAutomationRole = Role.fromRoleArn(this, 'ProdPipelineAutomationRole', `arn:aws:iam::${props.prodAccountId}:role/PipelineAutomationRole`, { mutable: false });
+		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'MgmtPipelineAutomationRole', `arn:aws:iam::${STACK.account}:role/PipelineAutomationRole`, { mutable: false });
+
 		const oauthToken = SecretValue.secretsManager('GitHubToken');
 		const infrastructureSourceOutput = new Artifact('SourceOutput');
 
@@ -428,6 +430,9 @@ export class DeploymentPipeline extends Stack {
 				stageName: 'DeployToProd',
 			});
 		}
+
+		// Make sure the deployment role can get the artifacts from the S3 bucket
+		// deploymentPipeline.artifactBucket.grantRead(stage1DeployClientAction.deploymentRole);
 
 		artifactBucket.addToResourcePolicy(
 			new PolicyStatement({
