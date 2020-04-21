@@ -40,10 +40,10 @@ export class DeploymentPipeline extends Stack {
 		Tag.add(this, 'ServiceOwner', `${props.serviceOwner}`);
 
 		// Use existing PARs without attaching additional policy
-		const devPipelineAutomationRole = Role.fromRoleArn(this, 'DevPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`);
-		const ciPipelineAutomationRole = Role.fromRoleArn(this, 'CIPipelineAutomationRole', `arn:aws:iam::${props.ciAccountId}:role/PipelineAutomationRole`);
-		const prodPipelineAutomationRole = Role.fromRoleArn(this, 'ProdPipelineAutomationRole', `arn:aws:iam::${props.prodAccountId}:role/PipelineAutomationRole`);
-		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'MgmtPipelineAutomationRole', `arn:aws:iam::${STACK.account}:role/PipelineAutomationRole`);
+		const devPipelineAutomationRole = Role.fromRoleArn(this, 'DevPipelineAutomationRole', `arn:aws:iam::${props.devAccountId}:role/PipelineAutomationRole`, { mutable: false });
+		const ciPipelineAutomationRole = Role.fromRoleArn(this, 'CIPipelineAutomationRole', `arn:aws:iam::${props.ciAccountId}:role/PipelineAutomationRole`, { mutable: false });
+		const prodPipelineAutomationRole = Role.fromRoleArn(this, 'ProdPipelineAutomationRole', `arn:aws:iam::${props.prodAccountId}:role/PipelineAutomationRole`, { mutable: false });
+		const mgmtPipelineAutomationRole = Role.fromRoleArn(this, 'MgmtPipelineAutomationRole', `arn:aws:iam::${STACK.account}:role/PipelineAutomationRole`, { mutable: false });
 
 		const oauthToken = SecretValue.secretsManager('GitHubToken');
 		const infrastructureSourceOutput = new Artifact('SourceOutput');
@@ -163,6 +163,7 @@ export class DeploymentPipeline extends Stack {
 					project: cdkBuild,
 					input: infrastructureSourceOutput,
 					outputs: [cdkBuildOutput],
+					role: mgmtPipelineAutomationRole,
 					runOrder: 1
 				}),
 				new CodeBuildAction({
@@ -170,6 +171,7 @@ export class DeploymentPipeline extends Stack {
 					project: lambdaBuild,
 					input: infrastructureSourceOutput,
 					outputs: [lambdaBuildOutput],
+					role: mgmtPipelineAutomationRole,
 					runOrder: 2
 				})
 			],
@@ -312,6 +314,7 @@ export class DeploymentPipeline extends Stack {
 					new ManualApprovalAction({
 						actionName: 'Approve',
 						additionalInformation: 'Deploy to the CI environment?',
+						role: mgmtPipelineAutomationRole,
 						runOrder: 1
 					}),
 					stage2DeployDatabaseAction,
