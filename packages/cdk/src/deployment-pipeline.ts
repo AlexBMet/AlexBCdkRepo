@@ -50,7 +50,7 @@ export class DeploymentPipeline extends Stack {
 
 		const encryptionKey = new Key(this, 'FeatureKMSKey', {
 			alias: `alias/${props.uniquePrefix}/${STACK.region}/${props.deploymentType}/key`,
-			description: `KMS key for the ${props.deploymentType} pipeline for ${PREFIX} stack`,
+			description: `KMS for the ${props.deploymentType} pipeline for ${PREFIX} stack`,
 			enableKeyRotation: false,
 			removalPolicy: RemovalPolicy.DESTROY
 		});

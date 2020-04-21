@@ -1105,7 +1105,7 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              "KMS key for the feature pipeline for ghostrider-feature-",
+              "KMS for the feature pipeline for ghostrider-feature-",
               Object {
                 "Ref": "AWS::Region",
               },
@@ -2322,7 +2322,7 @@ Object {
           "Fn::Join": Array [
             "",
             Array [
-              "KMS key for the release pipeline for ghostrider-release-",
+              "KMS for the release pipeline for ghostrider-release-",
               Object {
                 "Ref": "AWS::Region",
               },
