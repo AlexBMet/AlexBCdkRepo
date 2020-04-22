@@ -367,7 +367,7 @@ export class DeploymentPipeline extends Stack {
 					new ManualApprovalAction({
 						actionName: 'Approve',
 						additionalInformation: 'Teardown the dev environment?',
-						role: devPipelineAutomationRole,
+						role: mgmtPipelineAutomationRole,
 						runOrder: 1
 					}),
 					new CloudFormationDeleteStackAction({
@@ -407,7 +407,8 @@ export class DeploymentPipeline extends Stack {
 				actions: [
 					new ManualApprovalAction({
 						actionName: 'Approve',
-						additionalInformation: 'Deploy to the staging environment?'
+						additionalInformation: 'Deploy to the staging environment?',
+						role: mgmtPipelineAutomationRole,
 					}),
 					stage1DeployDatabaseAction,
 					stage1DeployAPILayerAction,
@@ -422,7 +423,8 @@ export class DeploymentPipeline extends Stack {
 				actions: [
 					new ManualApprovalAction({
 						actionName: 'Approve',
-						additionalInformation: 'Deploy to the production environment?'
+						additionalInformation: 'Deploy to the production environment?',
+						role: mgmtPipelineAutomationRole,
 					}),
 					stage2DeployDatabaseAction,
 					stage2DeployAPILayerAction,
@@ -440,85 +442,66 @@ export class DeploymentPipeline extends Stack {
 
 		artifactBucket.addToResourcePolicy(
 			new PolicyStatement({
-				actions: [
-					's3:GetObject'
-				],
+				actions: ['s3:GetObject'],
 				effect: Effect.ALLOW,
 				principals: [new ServicePrincipal('codebuild.amazonaws.com')],
-				resources: [
-					`${artifactBucket.bucketArn}/*`
-				]
-			}));
-		artifactBucket.addToResourcePolicy(new PolicyStatement({
-			actions: [
-				's3:*'
-			],
-			effect: Effect.ALLOW,
-			principals: [new ServicePrincipal('cloudformation.amazonaws.com')],
-			resources: [
-				`${artifactBucket.bucketArn}`,
-				`${artifactBucket.bucketArn}/*`
-			]
-		}));
-		artifactBucket.addToResourcePolicy(new PolicyStatement({
-			actions: [
-				's3:DeleteObject',
-				's3:GetObject',
-				's3:GetObjectVersion',
-				's3:ListBucket',
-				's3:PutObject'
-			],
-			effect: Effect.ALLOW,
-			principals: [new ServicePrincipal('codepipeline.amazonaws.com')],
-			resources: [
-				`${artifactBucket.bucketArn}`,
-				`${artifactBucket.bucketArn}/*`
-			]
-		}));
-		artifactBucket.addToResourcePolicy(new PolicyStatement({
-			actions: [
-				's3:GetObject',
-				's3:GetObjectVersion',
-				's3:ListBucket'
-			],
-			effect: Effect.ALLOW,
-			principals: [new AccountPrincipal(STACK.account), new AccountPrincipal(props.devAccountId), new AccountPrincipal(props.ciAccountId), new AccountPrincipal(props.prodAccountId)],
-			resources: [
-				`${artifactBucket.bucketArn}`,
-				`${artifactBucket.bucketArn}/*`
-			]
-		}));
-		artifactBucket.addToResourcePolicy(new PolicyStatement({
-			actions: [
-				's3:PutObject'
-			],
-			conditions: {
-				Null: {
-					's3:x-amz-server-side-encryption': 'true'
-				}
-			},
-			effect: Effect.DENY,
-			principals: [new AnyPrincipal()],
-			resources: [
-				`${artifactBucket.bucketArn}`,
-				`${artifactBucket.bucketArn}/*`
-			]
-		}));
-		artifactBucket.addToResourcePolicy(new PolicyStatement({
-			actions: [
-				's3:*'
-			],
-			conditions: {
-				Bool: {
-					'aws:SecureTransport': 'false'
-				}
-			},
-			effect: Effect.DENY,
-			principals: [new AnyPrincipal()],
-			resources: [
-				`${artifactBucket.bucketArn}`,
-				`${artifactBucket.bucketArn}/*`
-			]
-		}));
+				resources: [`${artifactBucket.bucketArn}/*`],
+			})
+		);
+		artifactBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:*'],
+				effect: Effect.ALLOW,
+				principals: [new ServicePrincipal('cloudformation.amazonaws.com')],
+				resources: [`${artifactBucket.bucketArn}`, `${artifactBucket.bucketArn}/*`],
+			})
+		);
+		artifactBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:DeleteObject', 's3:GetObject', 's3:GetObjectVersion', 's3:ListBucket', 's3:PutObject'],
+				effect: Effect.ALLOW,
+				principals: [new ServicePrincipal('codepipeline.amazonaws.com')],
+				resources: [`${artifactBucket.bucketArn}`, `${artifactBucket.bucketArn}/*`],
+			})
+		);
+		artifactBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:GetObject', 's3:GetObjectVersion', 's3:ListBucket'],
+				effect: Effect.ALLOW,
+				principals: [
+					new AccountPrincipal(STACK.account),
+					new AccountPrincipal(props.devAccountId),
+					new AccountPrincipal(props.ciAccountId),
+					new AccountPrincipal(props.prodAccountId),
+				],
+				resources: [`${artifactBucket.bucketArn}`, `${artifactBucket.bucketArn}/*`],
+			})
+		);
+		artifactBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:PutObject'],
+				conditions: {
+					Null: {
+						's3:x-amz-server-side-encryption': 'true',
+					},
+				},
+				effect: Effect.DENY,
+				principals: [new AnyPrincipal()],
+				resources: [`${artifactBucket.bucketArn}`, `${artifactBucket.bucketArn}/*`],
+			})
+		);
+		artifactBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:*'],
+				conditions: {
+					Bool: {
+						'aws:SecureTransport': 'false',
+					},
+				},
+				effect: Effect.DENY,
+				principals: [new AnyPrincipal()],
+				resources: [`${artifactBucket.bucketArn}`, `${artifactBucket.bucketArn}/*`],
+			})
+		);
 	}
 }

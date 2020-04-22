@@ -890,7 +890,18 @@ Object {
                   "CustomData": "Teardown the dev environment?",
                 },
                 "Name": "Approve",
-                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
                 "RunOrder": 1,
               },
               Object {
@@ -1685,106 +1696,6 @@ Object {
       },
       "Type": "AWS::CodeBuild::Project",
     },
-    "DeploymentPipelineDeployToProdApproveCodePipelineActionRole9F835894": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
-                  ],
-                },
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "release",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "DeploymentPipelineDeployToStgApproveCodePipelineActionRole5743692A": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
-                  ],
-                },
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "release",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
     "DeploymentPipelineEDAF206A": Object {
       "Properties": Object {
         "ArtifactStore": Object {
@@ -1948,9 +1859,15 @@ Object {
                 },
                 "Name": "Approve",
                 "RoleArn": Object {
-                  "Fn::GetAtt": Array [
-                    "DeploymentPipelineDeployToStgApproveCodePipelineActionRole5743692A",
-                    "Arn",
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
                   ],
                 },
                 "RunOrder": 1,
@@ -2078,9 +1995,15 @@ Object {
                 },
                 "Name": "Approve",
                 "RoleArn": Object {
-                  "Fn::GetAtt": Array [
-                    "DeploymentPipelineDeployToProdApproveCodePipelineActionRole9F835894",
-                    "Arn",
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
                   ],
                 },
                 "RunOrder": 1,
