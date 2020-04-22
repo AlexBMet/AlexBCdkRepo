@@ -1,32 +1,31 @@
-import {Bucket} from '@aws-cdk/aws-s3';
-import {CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag} from '@aws-cdk/core';
+import { CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
+import { Bucket } from '@aws-cdk/aws-s3';
 
 export class Client extends Stack {
-
-	constructor(scope: Construct, id: string, props: {}) {
+	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
 
 		const STACK = Stack.of(this);
 		const ENVIRONMENT = new CfnParameter(this, 'Environment', {
 			allowedValues: ['dev', 'ci', 'stg', 'prod'],
 			description: 'TBC',
-			type: 'String'
+			type: 'String',
 		});
 		const SERVICE_CODE = new CfnParameter(this, 'ServiceCode', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const SERVICE_NAME = new CfnParameter(this, 'ServiceName', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const SERVICE_OWNER = new CfnParameter(this, 'ServiceOwner', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const UNIQUE_PREFIX = new CfnParameter(this, 'UniquePrefix', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const PREFIX = `${UNIQUE_PREFIX.value}-${ENVIRONMENT.value}-${STACK.region}`;
 
@@ -37,7 +36,7 @@ export class Client extends Stack {
 
 		new Bucket(this, 'CrossAccountBucket', {
 			bucketName: `${PREFIX}-client`,
-			removalPolicy: RemovalPolicy.DESTROY
+			removalPolicy: RemovalPolicy.DESTROY,
 		});
 	}
 }

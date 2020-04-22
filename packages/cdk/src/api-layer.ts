@@ -1,41 +1,40 @@
-import {Code, Function, Runtime, Tracing} from '@aws-cdk/aws-lambda';
-import {LogGroup, RetentionDays} from '@aws-cdk/aws-logs';
-import {CfnParameter, Construct, Duration, RemovalPolicy, Stack, Tag} from '@aws-cdk/core';
+import { CfnParameter, Construct, Duration, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
+import { Code, Function, Runtime, Tracing } from '@aws-cdk/aws-lambda';
+import { LogGroup, RetentionDays } from '@aws-cdk/aws-logs';
 
 export class APILayer extends Stack {
-
-	constructor(scope: Construct, id: string, props: {}) {
+	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
 
 		const STACK = Stack.of(this);
 		const ENVIRONMENT = new CfnParameter(this, 'Environment', {
 			allowedValues: ['dev', 'ci', 'stg', 'prod'],
 			description: 'TBC',
-			type: 'String'
+			type: 'String',
 		});
 		const SERVICE_CODE = new CfnParameter(this, 'ServiceCode', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const SERVICE_NAME = new CfnParameter(this, 'ServiceName', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const SERVICE_OWNER = new CfnParameter(this, 'ServiceOwner', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const BUCKET_NAME = new CfnParameter(this, 'SourceBucketName', {
 			description: 'TBC',
-			type: 'String'
+			type: 'String',
 		});
 		const OBJECT_KEY = new CfnParameter(this, 'SourceObjectKey', {
 			description: 'TBC',
-			type: 'String'
+			type: 'String',
 		});
 		const UNIQUE_PREFIX = new CfnParameter(this, 'UniquePrefix', {
 			type: 'String',
-			description: 'TBC'
+			description: 'TBC',
 		});
 		const PREFIX = `${UNIQUE_PREFIX.value}-${ENVIRONMENT.value}-${STACK.region}`;
 
@@ -48,7 +47,7 @@ export class APILayer extends Stack {
 		const lambdaFunction = new Function(this, 'LambdaFunction', {
 			code: Code.fromCfnParameters({
 				bucketNameParam: BUCKET_NAME,
-				objectKeyParam: OBJECT_KEY
+				objectKeyParam: OBJECT_KEY,
 			}),
 			description: 'TBC',
 			functionName: `${PREFIX}-lambda`,
@@ -56,13 +55,13 @@ export class APILayer extends Stack {
 			memorySize: 128,
 			runtime: Runtime.NODEJS_12_X,
 			timeout: Duration.seconds(30),
-			tracing: Tracing.ACTIVE
+			tracing: Tracing.ACTIVE,
 		});
 
 		new LogGroup(this, 'LambdaLogs', {
 			logGroupName: `/aws/lambda/${lambdaFunction.functionName}`,
 			retention: RetentionDays.THREE_DAYS,
-			removalPolicy: RemovalPolicy.DESTROY
+			removalPolicy: RemovalPolicy.DESTROY,
 		});
 	}
 }

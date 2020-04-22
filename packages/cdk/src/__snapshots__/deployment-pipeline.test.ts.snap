@@ -2,6 +2,7 @@
 
 exports[`[deployment-pipeline.ts] unit tests [stack] must create a feature CodePipeline 1`] = `
 Object {
+  "Description": "Continous Integration",
   "Resources": Object {
     "ArtifactBucket7410C9EF": Object {
       "DeletionPolicy": "Delete",
@@ -37,18 +38,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "feature",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -357,6 +346,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"cd $CODEBUILD_SRC_DIR/packages/cdk\\",
+        \\"yarn test\\",
         \\"cdk synth Client > client.template.yaml\\",
         \\"cdk synth APILayer > api.template.yaml\\",
         \\"cdk synth Database > database.template.yaml\\"
@@ -370,6 +360,14 @@ Object {
       \\"api.template.yaml\\",
       \\"database.template.yaml\\"
     ]
+  },
+  \\"reports\\": {
+    \\"unit-tests\\": {
+      \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/cdk/reports\\",
+      \\"files\\": [
+        \\"junit.xml\\"
+      ]
+    }
   }
 }",
           "Type": "CODEPIPELINE",
@@ -378,18 +376,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "feature",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -555,7 +541,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -590,7 +576,7 @@ Object {
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
                   "Capabilities": "CAPABILITY_NAMED_IAM",
-                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -627,7 +613,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -691,7 +677,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -726,7 +712,7 @@ Object {
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
                   "Capabilities": "CAPABILITY_NAMED_IAM",
-                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -763,7 +749,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -994,18 +980,6 @@ Object {
             "Key": "Deployment",
             "Value": "feature",
           },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
-          },
         ],
       },
       "Type": "AWS::CodePipeline::Pipeline",
@@ -1057,18 +1031,7 @@ Object {
     "FeatureKMSKeyF1C3E2DD": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "Description": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "KMS for the feature pipeline for ghostrider-feature-",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              " stack",
-            ],
-          ],
-        },
+        "Description": "KMS key for the feature pipeline",
         "EnableKeyRotation": false,
         "KeyPolicy": Object {
           "Statement": Array [
@@ -1190,18 +1153,6 @@ Object {
             "Key": "Deployment",
             "Value": "feature",
           },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
-          },
         ],
       },
       "Type": "AWS::KMS::Key",
@@ -1260,6 +1211,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"cd $CODEBUILD_SRC_DIR/packages/lambda\\",
+        \\"yarn test\\",
         \\"yarn build\\",
         \\"cd $CODEBUILD_SRC_DIR\\",
         \\"yarn install --production --ignore-scripts --prefer-offline\\"
@@ -1272,6 +1224,14 @@ Object {
       \\"dist/*\\",
       \\"node_modules/*\\"
     ]
+  },
+  \\"reports\\": {
+    \\"unit-tests\\": {
+      \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/lambda/reports\\",
+      \\"files\\": [
+        \\"junit.xml\\"
+      ]
+    }
   }
 }",
           "Type": "CODEPIPELINE",
@@ -1280,18 +1240,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "feature",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -1303,6 +1251,7 @@ Object {
 
 exports[`[deployment-pipeline.ts] unit tests [stack] must create a release CodePipeline 1`] = `
 Object {
+  "Description": "Continous Integration",
   "Resources": Object {
     "ArtifactBucket7410C9EF": Object {
       "DeletionPolicy": "Delete",
@@ -1338,18 +1287,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "release",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -1658,6 +1595,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"cd $CODEBUILD_SRC_DIR/packages/cdk\\",
+        \\"yarn test\\",
         \\"cdk synth Client > client.template.yaml\\",
         \\"cdk synth APILayer > api.template.yaml\\",
         \\"cdk synth Database > database.template.yaml\\"
@@ -1671,6 +1609,14 @@ Object {
       \\"api.template.yaml\\",
       \\"database.template.yaml\\"
     ]
+  },
+  \\"reports\\": {
+    \\"unit-tests\\": {
+      \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/cdk/reports\\",
+      \\"files\\": [
+        \\"junit.xml\\"
+      ]
+    }
   }
 }",
           "Type": "CODEPIPELINE",
@@ -1679,18 +1625,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "release",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -1881,7 +1815,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -1916,7 +1850,7 @@ Object {
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
                   "Capabilities": "CAPABILITY_NAMED_IAM",
-                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -1953,7 +1887,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2017,7 +1951,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2052,7 +1986,7 @@ Object {
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
                   "Capabilities": "CAPABILITY_NAMED_IAM",
-                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"SourceBucketName\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"BucketName\\"]},\\"SourceObjectKey\\":{\\"Fn::GetArtifactAtt\\":[\\"LambdaBuildOutput\\",\\"ObjectKey\\"]},\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2089,7 +2023,7 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"CI\\",\\"ServiceName\\":\\"Continous Integration\\",\\"ServiceOwner\\":\\"Continous Integragtion\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
                   "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2122,18 +2056,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "release",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },
@@ -2186,18 +2108,7 @@ Object {
     "FeatureKMSKeyF1C3E2DD": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "Description": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "KMS for the release pipeline for ghostrider-release-",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              " stack",
-            ],
-          ],
-        },
+        "Description": "KMS key for the release pipeline",
         "EnableKeyRotation": false,
         "KeyPolicy": Object {
           "Statement": Array [
@@ -2319,18 +2230,6 @@ Object {
             "Key": "Deployment",
             "Value": "release",
           },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
-          },
         ],
       },
       "Type": "AWS::KMS::Key",
@@ -2389,6 +2288,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"cd $CODEBUILD_SRC_DIR/packages/lambda\\",
+        \\"yarn test\\",
         \\"yarn build\\",
         \\"cd $CODEBUILD_SRC_DIR\\",
         \\"yarn install --production --ignore-scripts --prefer-offline\\"
@@ -2401,6 +2301,14 @@ Object {
       \\"dist/*\\",
       \\"node_modules/*\\"
     ]
+  },
+  \\"reports\\": {
+    \\"unit-tests\\": {
+      \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/lambda/reports\\",
+      \\"files\\": [
+        \\"junit.xml\\"
+      ]
+    }
   }
 }",
           "Type": "CODEPIPELINE",
@@ -2409,18 +2317,6 @@ Object {
           Object {
             "Key": "Deployment",
             "Value": "release",
-          },
-          Object {
-            "Key": "ServiceCode",
-            "Value": "CI",
-          },
-          Object {
-            "Key": "ServiceName",
-            "Value": "Continous Integration",
-          },
-          Object {
-            "Key": "ServiceOwner",
-            "Value": "Continous Integragtion",
           },
         ],
       },

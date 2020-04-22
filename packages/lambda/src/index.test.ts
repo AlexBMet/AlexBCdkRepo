@@ -1,9 +1,8 @@
-import {handler} from './index';
+import { handler } from './index';
 
 describe('[index.js] unit tests', () => {
-
 	beforeEach(() => {
-		jest.spyOn(console, 'info').mockImplementation(() => {});
+		jest.spyOn(console, 'info').mockImplementation();
 	});
 
 	afterEach(() => {
@@ -13,7 +12,7 @@ describe('[index.js] unit tests', () => {
 
 	describe('[handler]', () => {
 		it('must respond with "FU BAR"', async () => {
-			expect(await handler()).toEqual('FU BAR');
+			expect(await handler({}, {})).toEqual('FU BAR');
 			expect(console.info).toHaveBeenCalledWith('FU BAR');
 		});
 	});

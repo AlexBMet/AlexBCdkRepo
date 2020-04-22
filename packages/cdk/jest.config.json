@@ -1,6 +1,15 @@
 {
 	"coverageDirectory": "../coverage",
 	"collectCoverage": true,
+    "reporters": [
+        "default",
+        [
+            "jest-junit",
+            {
+                "outputDirectory": "reports"
+            }
+        ]
+    ],
 	"rootDir": "./src",
 	"verbose": true,
 	"preset": "ts-jest",

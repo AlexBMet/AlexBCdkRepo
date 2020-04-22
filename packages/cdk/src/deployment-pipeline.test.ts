@@ -1,36 +1,34 @@
-import {SynthUtils} from '@aws-cdk/assert'; // tslint:disable-line:no-implicit-dependencies
-import {Stack} from '@aws-cdk/core';
-import {DeploymentPipeline} from './deployment-pipeline';
+import { DeploymentPipeline } from './deployment-pipeline';
+import { Stack } from '@aws-cdk/core';
+import { SynthUtils } from '@aws-cdk/assert'; // tslint:disable-line:no-implicit-dependencies
+import { TAGS } from './tags';
 
 describe('[deployment-pipeline.ts] unit tests', () => {
-
 	describe('[stack]', () => {
 		it('must create a feature CodePipeline', async () => {
 			const stack = new DeploymentPipeline(new Stack(), 'DeploymentPipeline', {
-				devAccountId: '123',
 				ciAccountId: '456',
-				prodAccountId: '789',
 				deploymentType: 'feature',
-				serviceCode: 'CI',
-				serviceName: 'Continous Integration',
-				serviceOwner: 'Continous Integragtion',
+				description: 'Continous Integration',
+				devAccountId: '123',
+				prodAccountId: '789',
 				sourceBranch: 'master',
-				uniquePrefix: 'ghostrider'
+				tags: TAGS,
+				uniquePrefix: 'ghostrider',
 			});
 			expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
 		});
 
 		it('must create a release CodePipeline', async () => {
 			const stack = new DeploymentPipeline(new Stack(), 'DeploymentPipeline', {
-				devAccountId: '123',
 				ciAccountId: '456',
-				prodAccountId: '789',
 				deploymentType: 'release',
-				serviceCode: 'CI',
-				serviceName: 'Continous Integration',
-				serviceOwner: 'Continous Integragtion',
+				description: 'Continous Integration',
+				devAccountId: '123',
+				prodAccountId: '789',
 				sourceBranch: 'master',
-				uniquePrefix: 'ghostrider'
+				tags: TAGS,
+				uniquePrefix: 'ghostrider',
 			});
 			expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
 		});

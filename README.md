@@ -37,10 +37,10 @@ UNIQUE_PREFIX=**Insert a unique prefix for all AWS resources**
 
 ```bash
 # Synthesize the deployment pipeline to deploy manually via the CloudFormation console
-$ cdk synth DeploymentPipeline > template.yaml
+$ cdk synth **UNIQUE_PREFIX**-cdk-deployment-pipeline > template.yaml
 
 # Deploy the deployment pipeline using the CDK
-$ cdk deploy DeploymentPipeline --profile **Insert the name of your AWS profile**
+$ cdk deploy **UNIQUE_PREFIX**-cdk-deployment-pipeline --profile **Insert the name of your AWS profile**
 ```
 
 ## Lint & Test
@@ -54,5 +54,3 @@ $ yarn run test
 
 # Update test snapshots
 $ yarn test -u
-```
-
