@@ -1,0 +1,9 @@
+# Artefacts
+cdk.out
+dist
+
+# Dependencies
+node_modules
+
+# Testing
+coverage
