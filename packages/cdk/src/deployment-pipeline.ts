@@ -8,6 +8,7 @@ import {
 	CodeBuildAction,
 	GitHubSourceAction,
 	ManualApprovalAction,
+	S3DeployAction,
 } from '@aws-cdk/aws-codepipeline-actions';
 import { Construct, RemovalPolicy, SecretValue, Stack, StackProps, Tag } from '@aws-cdk/core';
 import { CloudFormationCapabilities } from '@aws-cdk/aws-cloudformation';
@@ -21,6 +22,7 @@ export interface Props extends StackProps {
 	readonly deploymentType: 'feature' | 'release';
 	readonly sourceBranch: string;
 	readonly uniquePrefix: string;
+	readonly bucketName: string;
 }
 
 export class DeploymentPipeline extends Stack {
@@ -74,6 +76,22 @@ export class DeploymentPipeline extends Stack {
 			encryption: BucketEncryption.KMS,
 			encryptionKey,
 			removalPolicy: RemovalPolicy.DESTROY,
+		});
+
+		const websiteBuild = new PipelineProject(this, 'WebsiteBuild', {
+			buildSpec: BuildSpec.fromObject({
+				version: '0.2',
+				artifacts: {
+					'base-directory': '$CODEBUILD_SRC_DIR/website',
+					files: ['index.html'],
+				},
+			}),
+			environment: {
+				buildImage: LinuxBuildImage.STANDARD_3_0,
+				computeType: ComputeType.MEDIUM,
+			},
+			projectName: `${PREFIX}-website-build`,
+			role: mgmtPipelineAutomationRole,
 		});
 
 		const cdkBuild = new PipelineProject(this, 'CDKBuild', {
@@ -148,6 +166,7 @@ export class DeploymentPipeline extends Stack {
 			role: mgmtPipelineAutomationRole,
 		});
 
+		const websiteBuildOutput = new Artifact('WebsiteBuildOutput');
 		const cdkBuildOutput = new Artifact('CDKBuildOutput');
 		const lambdaBuildOutput = new Artifact('LambdaBuildOutput');
 
@@ -191,6 +210,14 @@ export class DeploymentPipeline extends Stack {
 					outputs: [lambdaBuildOutput],
 					role: mgmtPipelineAutomationRole,
 					runOrder: 2,
+				}),
+				new CodeBuildAction({
+					actionName: 'BuildWebsite',
+					project: websiteBuild,
+					input: infrastructureSourceOutput,
+					outputs: [websiteBuildOutput],
+					role: mgmtPipelineAutomationRole,
+					runOrder: 3,
 				}),
 			],
 			placement: {
@@ -314,9 +341,22 @@ export class DeploymentPipeline extends Stack {
 			templatePath: cdkBuildOutput.atPath('client.template.yaml'),
 		});
 
+		const stage1DeployWebsiteAction = new S3DeployAction({
+			actionName: 'DeployWebsite',
+			bucket: Bucket.fromBucketName(this, 'DeployBucket', props.bucketName),
+			input: websiteBuildOutput,
+			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			runOrder: 5,
+		});
+
 		if (props.deploymentType === 'feature') {
 			const deployDevStage = deploymentPipeline.addStage({
-				actions: [stage1DeployDatabaseAction, stage1DeployAPILayerAction, stage1DeployClientAction],
+				actions: [
+					stage1DeployDatabaseAction,
+					stage1DeployAPILayerAction,
+					stage1DeployClientAction,
+					stage1DeployWebsiteAction,
+				],
 				placement: {
 					justAfter: buildStage,
 				},

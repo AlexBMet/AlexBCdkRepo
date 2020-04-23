@@ -16,7 +16,9 @@ const DEPLOYMENT_TYPE = process.env.DEPLOYMENT_TYPE as 'feature' | 'release';
 const SOURCE_BRANCH = process.env.SOURCE_BRANCH as string;
 const UNIQUE_PREFIX = process.env.UNIQUE_PREFIX as string;
 
-new Client(stacks, 'Client', {
+//const websiteBucketName = `${UNIQUE_PREFIX}-${DEPLOYMENT_TYPE}-website-eu-west-1`; // TODO: This doesn't work for the stack names...;
+
+const client = new Client(stacks, 'Client', {
 	description: 'TBC',
 });
 
@@ -38,6 +40,7 @@ new DeploymentPipeline(stacks, `DeploymentPipeline`, {
 	stackName: `${UNIQUE_PREFIX}-cdk-deployment-pipeline`,
 	tags: TAGS,
 	uniquePrefix: UNIQUE_PREFIX,
+	bucketName: client.deployBucket.bucketName,
 });
 
 stacks.synth();

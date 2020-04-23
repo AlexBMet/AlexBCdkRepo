@@ -49,8 +49,20 @@ Object {
               Object {
                 "Ref": "AWS::Region",
               },
-              "-client",
+              "-website-bucket",
             ],
+          ],
+        },
+        "CorsConfiguration": Object {
+          "CorsRules": Array [
+            Object {
+              "AllowedMethods": Array [
+                "GET",
+              ],
+              "AllowedOrigins": Array [
+                "*",
+              ],
+            },
           ],
         },
         "Tags": Array [
@@ -79,9 +91,45 @@ Object {
             },
           },
         ],
+        "WebsiteConfiguration": Object {
+          "ErrorDocument": "error.html",
+          "IndexDocument": "index.html",
+        },
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Delete",
+    },
+    "CrossAccountBucketPolicy47651D3B": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "CrossAccountBucket9A289702",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "CrossAccountBucket9A289702",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
     },
   },
 }
