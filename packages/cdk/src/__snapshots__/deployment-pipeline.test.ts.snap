@@ -650,7 +650,18 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\",\\"BucketName\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-dev-website-bucket\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -683,7 +694,18 @@ Object {
                   "Version": "1",
                 },
                 "Configuration": Object {
-                  "BucketName": "myBucket",
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-dev-website-bucket",
+                      ],
+                    ],
+                  },
                   "Extract": "true",
                 },
                 "InputArtifacts": Array [
@@ -806,7 +828,18 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\",\\"BucketName\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-ci-website-bucket\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2043,7 +2076,18 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\",\\"BucketName\\":\\"ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-stg-website-bucket\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2179,7 +2223,18 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\",\\"BucketName\\":\\"ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-prod-website-bucket\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [

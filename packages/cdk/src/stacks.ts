@@ -19,6 +19,9 @@ const UNIQUE_PREFIX = process.env.UNIQUE_PREFIX as string;
 //const websiteBucketName = `${UNIQUE_PREFIX}-${DEPLOYMENT_TYPE}-website-eu-west-1`; // TODO: This doesn't work for the stack names...;
 
 const client = new Client(stacks, 'Client', {
+	//deploymentType: DEPLOYMENT_TYPE,
+	//uniquePrefix: UNIQUE_PREFIX,
+	tags: TAGS,
 	description: 'TBC',
 });
 

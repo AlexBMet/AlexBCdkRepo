@@ -25,12 +25,11 @@ export class Client extends Stack {
 			type: 'String',
 			description: 'TBC',
 		});
-		const UNIQUE_PREFIX = new CfnParameter(this, 'UniquePrefix', {
+
+		const BUCKET_NAME = new CfnParameter(this, 'BucketName', {
 			type: 'String',
 			description: 'TBC',
 		});
-
-		const PREFIX = `${UNIQUE_PREFIX.value}-${ENVIRONMENT.value}-${STACK.region}`;
 
 		Tag.add(this, 'Environment', `${ENVIRONMENT.value}`);
 		Tag.add(this, 'ServiceCode', `${SERVICE_CODE.value}`);
@@ -38,7 +37,7 @@ export class Client extends Stack {
 		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
 		const websiteBucket = new Bucket(this, 'WebsiteBucket', {
-			bucketName: `${PREFIX}-website-bucket-name`,
+			bucketName: `${BUCKET_NAME.value}`,
 			removalPolicy: RemovalPolicy.DESTROY,
 			websiteIndexDocument: 'index.html',
 			websiteErrorDocument: 'error.html',

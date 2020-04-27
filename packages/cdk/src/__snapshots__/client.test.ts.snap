@@ -3,6 +3,10 @@
 exports[`[client.ts] unit tests [stack] must create an S3 bucket 1`] = `
 Object {
   "Parameters": Object {
+    "BucketName": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
     "Environment": Object {
       "AllowedValues": Array [
         "dev",
@@ -25,33 +29,13 @@ Object {
       "Description": "TBC",
       "Type": "String",
     },
-    "UniquePrefix": Object {
-      "Description": "TBC",
-      "Type": "String",
-    },
   },
   "Resources": Object {
     "WebsiteBucket75C24D94": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
         "BucketName": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              Object {
-                "Ref": "UniquePrefix",
-              },
-              "-",
-              Object {
-                "Ref": "Environment",
-              },
-              "-",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              "-website-bucket-name",
-            ],
-          ],
+          "Ref": "BucketName",
         },
         "CorsConfiguration": Object {
           "CorsRules": Array [

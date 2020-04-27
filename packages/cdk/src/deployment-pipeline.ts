@@ -305,6 +305,12 @@ export class DeploymentPipeline extends Stack {
 			templatePath: cdkBuildOutput.atPath('api.template.yaml'),
 		});
 
+		const deployType1 = props.deploymentType === 'release' ? 'stg' : 'dev';
+		const deployType2 = props.deploymentType === 'release' ? 'prod' : 'ci';
+
+		const stage1BucketName = `${PREFIX}-${deployType1}-website-bucket`;
+		const stage2BucketName = `${PREFIX}-${deployType2}-website-bucket`;
+
 		const stage1DeployClientAction = new CloudFormationCreateUpdateStackAction({
 			account: props.deploymentType === 'release' ? props.ciAccountId : props.devAccountId,
 			actionName: 'DeployClient',
@@ -315,7 +321,8 @@ export class DeploymentPipeline extends Stack {
 				ServiceCode: TAGS.ServiceCode,
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
-				UniquePrefix: `${props.uniquePrefix}`
+				UniquePrefix: `${props.uniquePrefix}`,
+				BucketName: stage1BucketName,
 			},
 			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
 			runOrder: 4,
@@ -334,6 +341,7 @@ export class DeploymentPipeline extends Stack {
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
 				UniquePrefix: `${props.uniquePrefix}`,
+				BucketName: stage2BucketName,
 			},
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
 			runOrder: 4,
@@ -343,7 +351,7 @@ export class DeploymentPipeline extends Stack {
 
 		const stage1DeployWebsiteAction = new S3DeployAction({
 			actionName: 'DeployWebsite',
-			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', props.websiteBucketName),
+			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', stage1BucketName),
 			input: websiteBuildOutput,
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
 			runOrder: 5,
@@ -351,7 +359,7 @@ export class DeploymentPipeline extends Stack {
 
 		const stage2DeployWebsiteAction = new S3DeployAction({
 			actionName: 'DeployWebsite',
-			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', props.websiteBucketName),
+			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', stage2BucketName),
 			input: websiteBuildOutput,
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
 			runOrder: 5,
