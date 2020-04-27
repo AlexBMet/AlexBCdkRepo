@@ -353,7 +353,7 @@ export class DeploymentPipeline extends Stack {
 			actionName: 'DeployWebsite',
 			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', stage1BucketName),
 			input: websiteBuildOutput,
-			//role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
 			runOrder: 5,
 		});
 
@@ -361,7 +361,7 @@ export class DeploymentPipeline extends Stack {
 			actionName: 'DeployWebsite',
 			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', stage2BucketName),
 			input: websiteBuildOutput,
-			//role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
 			runOrder: 5,
 		});
 

@@ -1,5 +1,6 @@
 import { Bucket, HttpMethods } from '@aws-cdk/aws-s3';
 import { CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
+import {Effect, PolicyStatement, ServicePrincipal} from "@aws-cdk/aws-iam";
 
 export class Client extends Stack {
 	public readonly deployBucketName: string;
@@ -49,6 +50,15 @@ export class Client extends Stack {
 				},
 			],
 		});
+
+		websiteBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:*'],
+				effect: Effect.ALLOW,
+				principals: [new ServicePrincipal('codebuild.amazonaws.com')],
+				resources: [`${websiteBucket.bucketArn}/*`],
+			})
+		);
 
 		this.deployBucketName = websiteBucket.bucketName;
 
