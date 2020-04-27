@@ -60,6 +60,15 @@ export class Client extends Stack {
 			})
 		);
 
+		websiteBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:*'],
+				effect: Effect.ALLOW,
+				principals: [new ServicePrincipal('codepipeline.amazonaws.com')],
+				resources: [`${websiteBucket.bucketArn}`, `${websiteBucket.bucketArn}/*`],
+			})
+		);
+
 		this.deployBucketName = websiteBucket.bucketName;
 
 		//new CfnOutput(this, 'websiteBucketName', { value: websiteBucket.bucketName })
