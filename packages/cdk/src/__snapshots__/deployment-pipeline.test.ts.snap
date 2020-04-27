@@ -381,6 +381,145 @@ Object {
       },
       "Type": "AWS::CodeBuild::Project",
     },
+    "DeploymentPipelineDeployToDevDeployWebsiteCodePipelineActionRole44289DC6": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeploymentPipelineDeployToDevDeployWebsiteCodePipelineActionRoleDefaultPolicyD09AAE64": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-dev-website-bucket",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::ghostrider-feature-",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      "-dev-website-bucket/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeploymentPipelineDeployToDevDeployWebsiteCodePipelineActionRoleDefaultPolicyD09AAE64",
+        "Roles": Array [
+          Object {
+            "Ref": "DeploymentPipelineDeployToDevDeployWebsiteCodePipelineActionRole44289DC6",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "DeploymentPipelineEDAF206A": Object {
       "Properties": Object {
         "ArtifactStore": Object {
@@ -714,7 +853,12 @@ Object {
                   },
                 ],
                 "Name": "DeployWebsite",
-                "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
+                "RoleArn": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineDeployToDevDeployWebsiteCodePipelineActionRole44289DC6",
+                    "Arn",
+                  ],
+                },
                 "RunOrder": 5,
               },
             ],
@@ -1221,6 +1365,22 @@ Object {
               "Effect": "Allow",
               "Principal": Object {
                 "AWS": "arn:aws:iam::123:role/PipelineAutomationRole",
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "DeploymentPipelineDeployToDevDeployWebsiteCodePipelineActionRole44289DC6",
+                    "Arn",
+                  ],
+                },
               },
               "Resource": "*",
             },
