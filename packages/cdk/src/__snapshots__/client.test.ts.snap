@@ -31,7 +31,7 @@ Object {
     },
   },
   "Resources": Object {
-    "PREFIXWebsiteBucket86142485": Object {
+    "WebsiteBucket75C24D94": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
         "BucketName": Object {
@@ -49,7 +49,7 @@ Object {
               Object {
                 "Ref": "AWS::Region",
               },
-              "-website-bucket",
+              "-website-bucket-name",
             ],
           ],
         },
@@ -99,10 +99,10 @@ Object {
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Delete",
     },
-    "PREFIXWebsiteBucketPolicyD89C7218": Object {
+    "WebsiteBucketPolicyE10E3262": Object {
       "Properties": Object {
         "Bucket": Object {
-          "Ref": "PREFIXWebsiteBucket86142485",
+          "Ref": "WebsiteBucket75C24D94",
         },
         "PolicyDocument": Object {
           "Statement": Array [
@@ -116,7 +116,7 @@ Object {
                   Array [
                     Object {
                       "Fn::GetAtt": Array [
-                        "PREFIXWebsiteBucket86142485",
+                        "WebsiteBucket75C24D94",
                         "Arn",
                       ],
                     },

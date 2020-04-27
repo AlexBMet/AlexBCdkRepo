@@ -645,6 +645,40 @@ Object {
                 "ActionTypeId": Object {
                   "Category": "Deploy",
                   "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ActionMode": "CREATE_UPDATE",
+                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                  "StackName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-client",
+                      ],
+                    ],
+                  },
+                  "TemplatePath": "CDKBuildOutput::client.template.yaml",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "CDKBuildOutput",
+                  },
+                ],
+                "Name": "DeployClient",
+                "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
+                "RunOrder": 4,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
                   "Provider": "S3",
                   "Version": "1",
                 },

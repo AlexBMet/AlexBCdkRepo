@@ -29,6 +29,7 @@ export class Client extends Stack {
 			type: 'String',
 			description: 'TBC',
 		});
+
 		const PREFIX = `${UNIQUE_PREFIX.value}-${ENVIRONMENT.value}-${STACK.region}`;
 
 		Tag.add(this, 'Environment', `${ENVIRONMENT.value}`);
@@ -36,8 +37,8 @@ export class Client extends Stack {
 		Tag.add(this, 'ServiceName', `${SERVICE_NAME.value}`);
 		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
-		const websiteBucket = new Bucket(this, '${PREFIX}-WebsiteBucket', {
-			bucketName: `${PREFIX}-website-bucket`,
+		const websiteBucket = new Bucket(this, 'WebsiteBucket', {
+			bucketName: `${PREFIX}-website-bucket-name`,
 			removalPolicy: RemovalPolicy.DESTROY,
 			websiteIndexDocument: 'index.html',
 			websiteErrorDocument: 'error.html',

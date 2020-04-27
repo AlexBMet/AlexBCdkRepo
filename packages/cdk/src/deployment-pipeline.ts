@@ -315,7 +315,7 @@ export class DeploymentPipeline extends Stack {
 				ServiceCode: TAGS.ServiceCode,
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
-				UniquePrefix: `${props.uniquePrefix}`,
+				UniquePrefix: `${props.uniquePrefix}`
 			},
 			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
 			runOrder: 4,
@@ -362,7 +362,7 @@ export class DeploymentPipeline extends Stack {
 				actions: [
 					stage1DeployDatabaseAction,
 					stage1DeployAPILayerAction,
-					//stage1DeployClientAction,
+					stage1DeployClientAction,
 					stage1DeployWebsiteAction,
 				],
 				placement: {
