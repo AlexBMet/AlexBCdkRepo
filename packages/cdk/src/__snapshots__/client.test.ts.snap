@@ -31,7 +31,7 @@ Object {
     },
   },
   "Resources": Object {
-    "CrossAccountBucket9A289702": Object {
+    "PREFIXWebsiteBucket86142485": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
         "BucketName": Object {
@@ -99,10 +99,10 @@ Object {
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Delete",
     },
-    "CrossAccountBucketPolicy47651D3B": Object {
+    "PREFIXWebsiteBucketPolicyD89C7218": Object {
       "Properties": Object {
         "Bucket": Object {
-          "Ref": "CrossAccountBucket9A289702",
+          "Ref": "PREFIXWebsiteBucket86142485",
         },
         "PolicyDocument": Object {
           "Statement": Array [
@@ -116,7 +116,7 @@ Object {
                   Array [
                     Object {
                       "Fn::GetAtt": Array [
-                        "CrossAccountBucket9A289702",
+                        "PREFIXWebsiteBucket86142485",
                         "Arn",
                       ],
                     },

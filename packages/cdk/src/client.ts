@@ -1,8 +1,8 @@
-import { Bucket, HttpMethods, IBucket } from '@aws-cdk/aws-s3';
+import { Bucket, HttpMethods } from '@aws-cdk/aws-s3';
 import { CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
 
 export class Client extends Stack {
-	public readonly deployBucket: IBucket;
+	public readonly deployBucketName: string;
 
 	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
@@ -36,7 +36,7 @@ export class Client extends Stack {
 		Tag.add(this, 'ServiceName', `${SERVICE_NAME.value}`);
 		Tag.add(this, 'ServiceOwner', `${SERVICE_OWNER.value}`);
 
-		this.deployBucket = new Bucket(this, 'CrossAccountBucket', {
+		const websiteBucket = new Bucket(this, '${PREFIX}-WebsiteBucket', {
 			bucketName: `${PREFIX}-website-bucket`,
 			removalPolicy: RemovalPolicy.DESTROY,
 			websiteIndexDocument: 'index.html',
@@ -49,5 +49,9 @@ export class Client extends Stack {
 				},
 			],
 		});
+
+		this.deployBucketName = websiteBucket.bucketName;
+
+		//new CfnOutput(this, 'websiteBucketName', { value: websiteBucket.bucketName })
 	}
 }

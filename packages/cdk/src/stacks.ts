@@ -40,7 +40,7 @@ new DeploymentPipeline(stacks, `DeploymentPipeline`, {
 	stackName: `${UNIQUE_PREFIX}-cdk-deployment-pipeline`,
 	tags: TAGS,
 	uniquePrefix: UNIQUE_PREFIX,
-	bucketName: client.deployBucket.bucketName,
+	websiteBucketName: client.deployBucketName,
 });
 
 stacks.synth();

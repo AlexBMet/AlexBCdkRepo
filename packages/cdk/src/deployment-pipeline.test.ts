@@ -15,7 +15,7 @@ describe('[deployment-pipeline.ts] unit tests', () => {
 				sourceBranch: 'master',
 				tags: TAGS,
 				uniquePrefix: 'ghostrider',
-				bucketName: 'myBucket',
+				websiteBucketName: 'myBucket',
 			});
 			expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
 		});
@@ -30,7 +30,7 @@ describe('[deployment-pipeline.ts] unit tests', () => {
 				sourceBranch: 'master',
 				tags: TAGS,
 				uniquePrefix: 'ghostrider',
-				bucketName: 'myBucket',
+				websiteBucketName: 'myBucket',
 			});
 			expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
 		});

@@ -22,7 +22,7 @@ export interface Props extends StackProps {
 	readonly deploymentType: 'feature' | 'release';
 	readonly sourceBranch: string;
 	readonly uniquePrefix: string;
-	readonly bucketName: string;
+	readonly websiteBucketName: string;
 }
 
 export class DeploymentPipeline extends Stack {
@@ -343,7 +343,15 @@ export class DeploymentPipeline extends Stack {
 
 		const stage1DeployWebsiteAction = new S3DeployAction({
 			actionName: 'DeployWebsite',
-			bucket: Bucket.fromBucketName(this, 'DeployBucket', props.bucketName),
+			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', props.websiteBucketName),
+			input: websiteBuildOutput,
+			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
+			runOrder: 5,
+		});
+
+		const stage2DeployWebsiteAction = new S3DeployAction({
+			actionName: 'DeployWebsite',
+			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', props.websiteBucketName),
 			input: websiteBuildOutput,
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
 			runOrder: 5,
@@ -354,7 +362,7 @@ export class DeploymentPipeline extends Stack {
 				actions: [
 					stage1DeployDatabaseAction,
 					stage1DeployAPILayerAction,
-					stage1DeployClientAction,
+					//stage1DeployClientAction,
 					stage1DeployWebsiteAction,
 				],
 				placement: {
