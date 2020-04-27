@@ -357,14 +357,6 @@ export class DeploymentPipeline extends Stack {
 			runOrder: 5,
 		});
 
-		const stage2DeployWebsiteAction = new S3DeployAction({
-			actionName: 'DeployWebsite',
-			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', stage2BucketName),
-			input: websiteBuildOutput,
-			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
-			runOrder: 5,
-		});
-
 		if (props.deploymentType === 'feature') {
 			const deployDevStage = deploymentPipeline.addStage({
 				actions: [

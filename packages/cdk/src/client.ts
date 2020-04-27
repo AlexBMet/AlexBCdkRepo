@@ -8,7 +8,6 @@ export class Client extends Stack {
 	constructor(scope: Construct, id: string, props: StackProps) {
 		super(scope, id, props);
 
-		const STACK = Stack.of(this);
 		const ENVIRONMENT = new CfnParameter(this, 'Environment', {
 			allowedValues: ['dev', 'ci', 'stg', 'prod'],
 			description: 'TBC',
