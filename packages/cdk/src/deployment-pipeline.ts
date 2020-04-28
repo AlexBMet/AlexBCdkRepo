@@ -321,7 +321,6 @@ export class DeploymentPipeline extends Stack {
 				ServiceCode: TAGS.ServiceCode,
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
-				UniquePrefix: `${props.uniquePrefix}`,
 				BucketName: stage1BucketName,
 			},
 			role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
@@ -340,7 +339,6 @@ export class DeploymentPipeline extends Stack {
 				ServiceCode: TAGS.ServiceCode,
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
-				UniquePrefix: `${props.uniquePrefix}`,
 				BucketName: stage2BucketName,
 			},
 			role: props.deploymentType === 'release' ? prodPipelineAutomationRole : ciPipelineAutomationRole,
@@ -352,6 +350,14 @@ export class DeploymentPipeline extends Stack {
 		const stage1DeployWebsiteAction = new S3DeployAction({
 			actionName: 'DeployWebsite',
 			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', stage1BucketName),
+			input: websiteBuildOutput,
+			role: mgmtPipelineAutomationRole,
+			runOrder: 5,
+		});
+
+		const stage2DeployWebsiteAction = new S3DeployAction({
+			actionName: 'DeployWebsite',
+			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', stage2BucketName),
 			input: websiteBuildOutput,
 			role: mgmtPipelineAutomationRole,
 			runOrder: 5,
@@ -382,6 +388,7 @@ export class DeploymentPipeline extends Stack {
 					stage2DeployDatabaseAction,
 					stage2DeployAPILayerAction,
 					stage2DeployClientAction,
+					stage2DeployWebsiteAction,
 				],
 				placement: {
 					justAfter: deployDevStage,

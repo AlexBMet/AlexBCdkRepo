@@ -1,5 +1,5 @@
 import { Bucket, HttpMethods } from '@aws-cdk/aws-s3';
-import { CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
+import { CfnOutput, CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
 import { Effect, PolicyStatement, ServicePrincipal } from '@aws-cdk/aws-iam';
 
 export class Client extends Stack {
@@ -70,6 +70,6 @@ export class Client extends Stack {
 
 		this.deployBucketName = websiteBucket.bucketName;
 
-		//new CfnOutput(this, 'websiteBucketName', { value: websiteBucket.bucketName })
+		new CfnOutput(this, 'websiteBucketUrl', { value: websiteBucket.bucketWebsiteUrl });
 	}
 }

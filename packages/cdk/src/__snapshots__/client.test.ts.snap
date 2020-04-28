@@ -2,6 +2,16 @@
 
 exports[`[client.ts] unit tests [stack] must create an S3 bucket 1`] = `
 Object {
+  "Outputs": Object {
+    "websiteBucketUrl": Object {
+      "Value": Object {
+        "Fn::GetAtt": Array [
+          "WebsiteBucket75C24D94",
+          "WebsiteURL",
+        ],
+      },
+    },
+  },
   "Parameters": Object {
     "BucketName": Object {
       "Description": "TBC",
