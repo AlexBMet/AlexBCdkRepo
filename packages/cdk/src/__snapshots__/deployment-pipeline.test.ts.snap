@@ -985,7 +985,7 @@ Object {
                     ],
                   ],
                 },
-                "RunOrder": 1,
+                "RunOrder": 2,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1012,7 +1012,7 @@ Object {
                 },
                 "Name": "TeardownClient",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1039,7 +1039,7 @@ Object {
                 },
                 "Name": "TeardownAPILayer",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1066,7 +1066,7 @@ Object {
                 },
                 "Name": "TeardownDatabase",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 4,
+                "RunOrder": 5,
               },
             ],
             "Name": "CITeardown",
@@ -1230,28 +1230,10 @@ Object {
           "PrivilegedMode": false,
           "Type": "LINUX_CONTAINER",
         },
-        "Name": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "ghostrider-feature-",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              "-empty-bucket-build",
-            ],
-          ],
-        },
         "ServiceRole": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "arn:aws:iam::",
-              Object {
-                "Ref": "AWS::AccountId",
-              },
-              ":role/PipelineAutomationRole",
-            ],
+          "Fn::GetAtt": Array [
+            "EmptyCiBucketBuildRole0E42853A",
+            "Arn",
           ],
         },
         "Source": Object {
@@ -1261,6 +1243,7 @@ Object {
     \\"install\\": {
       \\"commands\\": [
         \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
         \\"apt-get -y install python3-pip\\",
         \\"pip3 install awscli --upgrade\\"
       ]
@@ -1268,7 +1251,15 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"sts=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole) --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \\",
         \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id '$AKID' \\",
+        \\"aws configure set aws_secret_access_key '$SAK'\\",
+        \\"aws configure set aws_session_token '$ST'\\",
+        \\"aws configure set region eu-west-1\\",
         \\"aws s3 rm s3://\${STAGE_2_BUCKET_NAME} --recursive\\"
       ]
     }
@@ -1284,6 +1275,160 @@ Object {
         ],
       },
       "Type": "AWS::CodeBuild::Project",
+    },
+    "EmptyCiBucketBuildRole0E42853A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codebuild.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyCiBucketBuild88DB8EF6",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyCiBucketBuild88DB8EF6",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12",
+        "Roles": Array [
+          Object {
+            "Ref": "EmptyCiBucketBuildRole0E42853A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
@@ -1444,6 +1589,40 @@ Object {
               "Effect": "Allow",
               "Principal": Object {
                 "AWS": "arn:aws:iam::456:role/PipelineAutomationRole",
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "EmptyCiBucketBuildRole0E42853A",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "EmptyCiBucketBuildRole0E42853A",
+                    "Arn",
+                  ],
+                },
               },
               "Resource": "*",
             },
@@ -2524,28 +2703,10 @@ Object {
           "PrivilegedMode": false,
           "Type": "LINUX_CONTAINER",
         },
-        "Name": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "ghostrider-release-",
-              Object {
-                "Ref": "AWS::Region",
-              },
-              "-empty-bucket-build",
-            ],
-          ],
-        },
         "ServiceRole": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "arn:aws:iam::",
-              Object {
-                "Ref": "AWS::AccountId",
-              },
-              ":role/PipelineAutomationRole",
-            ],
+          "Fn::GetAtt": Array [
+            "EmptyCiBucketBuildRole0E42853A",
+            "Arn",
           ],
         },
         "Source": Object {
@@ -2555,6 +2716,7 @@ Object {
     \\"install\\": {
       \\"commands\\": [
         \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
         \\"apt-get -y install python3-pip\\",
         \\"pip3 install awscli --upgrade\\"
       ]
@@ -2562,7 +2724,15 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"sts=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole) --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \\",
         \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id '$AKID' \\",
+        \\"aws configure set aws_secret_access_key '$SAK'\\",
+        \\"aws configure set aws_session_token '$ST'\\",
+        \\"aws configure set region eu-west-1\\",
         \\"aws s3 rm s3://\${STAGE_2_BUCKET_NAME} --recursive\\"
       ]
     }
@@ -2578,6 +2748,102 @@ Object {
         ],
       },
       "Type": "AWS::CodeBuild::Project",
+    },
+    "EmptyCiBucketBuildRole0E42853A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codebuild.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyCiBucketBuild88DB8EF6",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyCiBucketBuild88DB8EF6",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12",
+        "Roles": Array [
+          Object {
+            "Ref": "EmptyCiBucketBuildRole0E42853A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {

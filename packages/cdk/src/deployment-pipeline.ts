@@ -178,19 +178,30 @@ export class DeploymentPipeline extends Stack {
 				version: '0.2',
 				phases: {
 					install: {
-						commands: ['apt-get update', 'apt-get -y install python3-pip', 'pip3 install awscli --upgrade'],
+						commands: [
+							'apt-get update',
+							'apt-get -y install jq',
+							'apt-get -y install python3-pip',
+							'pip3 install awscli --upgrade',
+						],
 					},
 					build: {
 						commands: [
 							'echo Assuming PipelineAutomationRole to empty buckets',
+							"sts=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole) --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' ",
 							'TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)',
+							"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')",
+							"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')",
+							"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')",
+							"aws configure set aws_access_key_id '$AKID' ",
+							"aws configure set aws_secret_access_key '$SAK'",
+							"aws configure set aws_session_token '$ST'",
+							'aws configure set region eu-west-1',
 							'aws s3 rm s3://${STAGE_2_BUCKET_NAME} --recursive',
 						],
 					},
 				},
 			}),
-			projectName: `${PREFIX}-empty-bucket-build`,
-			role: mgmtPipelineAutomationRole,
 		});
 
 		const websiteBuildOutput = new Artifact('WebsiteBuildOutput');
@@ -437,14 +448,14 @@ export class DeploymentPipeline extends Stack {
 						input: infrastructureSourceOutput,
 						outputs: [],
 						role: mgmtPipelineAutomationRole,
-						runOrder: 1,
+						runOrder: 2,
 					}),
 					new CloudFormationDeleteStackAction({
 						actionName: 'TeardownClient',
 						adminPermissions: false,
 						deploymentRole: ciPipelineAutomationRole,
 						role: ciPipelineAutomationRole,
-						runOrder: 2,
+						runOrder: 3,
 						stackName: `${PREFIX}-client`,
 					}),
 					new CloudFormationDeleteStackAction({
@@ -452,7 +463,7 @@ export class DeploymentPipeline extends Stack {
 						adminPermissions: false,
 						deploymentRole: ciPipelineAutomationRole,
 						role: ciPipelineAutomationRole,
-						runOrder: 3,
+						runOrder: 4,
 						stackName: `${PREFIX}-api-layer`,
 					}),
 					new CloudFormationDeleteStackAction({
@@ -460,7 +471,7 @@ export class DeploymentPipeline extends Stack {
 						adminPermissions: false,
 						deploymentRole: ciPipelineAutomationRole,
 						role: ciPipelineAutomationRole,
-						runOrder: 4,
+						runOrder: 5,
 						stackName: `${PREFIX}-database`,
 					}),
 				],
