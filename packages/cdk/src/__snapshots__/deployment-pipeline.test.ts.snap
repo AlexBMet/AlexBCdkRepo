@@ -1413,7 +1413,7 @@ Object {
           "BuildSpec": "{
   \\"version\\": \\"0.2\\",
   \\"artifacts\\": {
-    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/website\\",
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/website\\",
     \\"files\\": [
       \\"index.html\\"
     ]
@@ -2611,7 +2611,7 @@ Object {
           "BuildSpec": "{
   \\"version\\": \\"0.2\\",
   \\"artifacts\\": {
-    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/website\\",
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/website\\",
     \\"files\\": [
       \\"index.html\\"
     ]

@@ -82,7 +82,7 @@ export class DeploymentPipeline extends Stack {
 			buildSpec: BuildSpec.fromObject({
 				version: '0.2',
 				artifacts: {
-					'base-directory': '$CODEBUILD_SRC_DIR/website',
+					'base-directory': '$CODEBUILD_SRC_DIR/packages/website',
 					files: ['index.html'],
 				},
 			}),
