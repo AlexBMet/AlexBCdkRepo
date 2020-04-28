@@ -13,6 +13,10 @@ Object {
     },
   },
   "Parameters": Object {
+    "AccountId": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
     "BucketName": Object {
       "Description": "TBC",
       "Type": "String",
@@ -36,6 +40,10 @@ Object {
       "Type": "String",
     },
     "ServiceOwner": Object {
+      "Description": "TBC",
+      "Type": "String",
+    },
+    "StackAccount": Object {
       "Description": "TBC",
       "Type": "String",
     },
@@ -145,6 +153,97 @@ Object {
               "Effect": "Allow",
               "Principal": Object {
                 "Service": "codepipeline.amazonaws.com",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "WebsiteBucket75C24D94",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "WebsiteBucket75C24D94",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "s3:*",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cloudformation.amazonaws.com",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "WebsiteBucket75C24D94",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "WebsiteBucket75C24D94",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "s3:*",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::",
+                        Object {
+                          "Ref": "StackAccount",
+                        },
+                        ":root",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":iam::",
+                        Object {
+                          "Ref": "AccountId",
+                        },
+                        ":root",
+                      ],
+                    ],
+                  },
+                ],
               },
               "Resource": Array [
                 Object {

@@ -1,6 +1,6 @@
+import { AccountPrincipal, Effect, PolicyStatement, ServicePrincipal } from '@aws-cdk/aws-iam';
 import { Bucket, HttpMethods } from '@aws-cdk/aws-s3';
 import { CfnOutput, CfnParameter, Construct, RemovalPolicy, Stack, StackProps, Tag } from '@aws-cdk/core';
-import { Effect, PolicyStatement, ServicePrincipal } from '@aws-cdk/aws-iam';
 
 export class Client extends Stack {
 	public readonly deployBucketName: string;
@@ -27,6 +27,16 @@ export class Client extends Stack {
 		});
 
 		const BUCKET_NAME = new CfnParameter(this, 'BucketName', {
+			type: 'String',
+			description: 'TBC',
+		});
+
+		const ACCOUNT_ID = new CfnParameter(this, 'AccountId', {
+			type: 'String',
+			description: 'TBC',
+		});
+
+		const STACK_ACCOUNT = new CfnParameter(this, 'StackAccount', {
 			type: 'String',
 			description: 'TBC',
 		});
@@ -64,6 +74,29 @@ export class Client extends Stack {
 				actions: ['s3:*'],
 				effect: Effect.ALLOW,
 				principals: [new ServicePrincipal('codepipeline.amazonaws.com')],
+				resources: [`${websiteBucket.bucketArn}`, `${websiteBucket.bucketArn}/*`],
+			})
+		);
+
+		websiteBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:*'],
+				effect: Effect.ALLOW,
+				principals: [new ServicePrincipal('cloudformation.amazonaws.com')],
+				resources: [`${websiteBucket.bucketArn}`, `${websiteBucket.bucketArn}/*`],
+			})
+		);
+
+		websiteBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ['s3:*'],
+				effect: Effect.ALLOW,
+				principals: [
+					new AccountPrincipal(STACK_ACCOUNT.value),
+					new AccountPrincipal(ACCOUNT_ID.value),
+					// new AccountPrincipal(props.ciAccountId),
+					// new AccountPrincipal(props.prodAccountId),
+				],
 				resources: [`${websiteBucket.bucketArn}`, `${websiteBucket.bucketArn}/*`],
 			})
 		);

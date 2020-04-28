@@ -658,7 +658,11 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-dev-website-bucket\\"}",
+                        "-dev-website-bucket\\",\\"AccountId\\":\\"123\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
                       ],
                     ],
                   },
@@ -847,7 +851,11 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-ci-website-bucket\\"}",
+                        "-ci-website-bucket\\",\\"AccountId\\":\\"456\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
                       ],
                     ],
                   },
@@ -2159,7 +2167,11 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-stg-website-bucket\\"}",
+                        "-stg-website-bucket\\",\\"AccountId\\":\\"456\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
                       ],
                     ],
                   },
@@ -2306,7 +2318,11 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-prod-website-bucket\\"}",
+                        "-prod-website-bucket\\",\\"AccountId\\":\\"789\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
                       ],
                     ],
                   },
