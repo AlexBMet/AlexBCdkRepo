@@ -353,7 +353,7 @@ export class DeploymentPipeline extends Stack {
 			actionName: 'DeployWebsite',
 			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', stage1BucketName),
 			input: websiteBuildOutput,
-			//role: props.deploymentType === 'release' ? ciPipelineAutomationRole : devPipelineAutomationRole,
+			role: mgmtPipelineAutomationRole,
 			runOrder: 5,
 		});
 
