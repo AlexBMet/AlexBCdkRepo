@@ -71,8 +71,15 @@ export class DeploymentPipeline extends Stack {
 			removalPolicy: RemovalPolicy.DESTROY,
 		});
 
+		const ARTIFACT_BUCKET_NAME = `${PREFIX}-artifact-bucket`;
+		const deployType1 = props.deploymentType === 'release' ? 'stg' : 'dev';
+		const deployType2 = props.deploymentType === 'release' ? 'prod' : 'ci';
+
+		const STAGE_1_BUCKET_NAME = `${PREFIX}-${deployType1}-website-bucket`;
+		const STAGE_2_BUCKET_NAME = `${PREFIX}-${deployType2}-website-bucket`;
+
 		const artifactBucket = new Bucket(this, 'ArtifactBucket', {
-			bucketName: `${PREFIX}-artifact-bucket`,
+			bucketName: ARTIFACT_BUCKET_NAME,
 			encryption: BucketEncryption.KMS,
 			encryptionKey,
 			removalPolicy: RemovalPolicy.DESTROY,
@@ -163,6 +170,26 @@ export class DeploymentPipeline extends Stack {
 				computeType: ComputeType.MEDIUM,
 			},
 			projectName: `${PREFIX}-lambda-build`,
+			role: mgmtPipelineAutomationRole,
+		});
+
+		const emptyCiBucketsBuild = new PipelineProject(this, 'EmptyCiBucketBuild', {
+			buildSpec: BuildSpec.fromObject({
+				version: '0.2',
+				phases: {
+					install: {
+						commands: ['apt-get update', 'apt-get -y install python3-pip', 'pip3 install awscli --upgrade'],
+					},
+					build: {
+						commands: [
+							'echo Assuming PipelineAutomationRole to empty buckets',
+							'TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)',
+							'aws s3 rm s3://${STAGE_2_BUCKET_NAME} --recursive',
+						],
+					},
+				},
+			}),
+			projectName: `${PREFIX}-empty-bucket-build`,
 			role: mgmtPipelineAutomationRole,
 		});
 
@@ -305,12 +332,6 @@ export class DeploymentPipeline extends Stack {
 			templatePath: cdkBuildOutput.atPath('api.template.yaml'),
 		});
 
-		const deployType1 = props.deploymentType === 'release' ? 'stg' : 'dev';
-		const deployType2 = props.deploymentType === 'release' ? 'prod' : 'ci';
-
-		const stage1BucketName = `${PREFIX}-${deployType1}-website-bucket`;
-		const stage2BucketName = `${PREFIX}-${deployType2}-website-bucket`;
-
 		const stage1DeployClientAction = new CloudFormationCreateUpdateStackAction({
 			account: props.deploymentType === 'release' ? props.ciAccountId : props.devAccountId,
 			actionName: 'DeployClient',
@@ -321,7 +342,7 @@ export class DeploymentPipeline extends Stack {
 				ServiceCode: TAGS.ServiceCode,
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
-				BucketName: stage1BucketName,
+				BucketName: STAGE_1_BUCKET_NAME,
 				AccountId: props.deploymentType === 'release' ? props.ciAccountId : props.devAccountId,
 				StackAccount: STACK.account,
 			},
@@ -341,7 +362,7 @@ export class DeploymentPipeline extends Stack {
 				ServiceCode: TAGS.ServiceCode,
 				ServiceName: TAGS.ServiceName,
 				ServiceOwner: TAGS.ServiceOwner,
-				BucketName: stage2BucketName,
+				BucketName: STAGE_2_BUCKET_NAME,
 				AccountId: props.deploymentType === 'release' ? props.prodAccountId : props.ciAccountId,
 				StackAccount: STACK.account,
 			},
@@ -353,7 +374,7 @@ export class DeploymentPipeline extends Stack {
 
 		const stage1DeployWebsiteAction = new S3DeployAction({
 			actionName: 'DeployWebsite',
-			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', stage1BucketName),
+			bucket: Bucket.fromBucketName(this, 'Stage1DeployBucket', STAGE_1_BUCKET_NAME),
 			input: websiteBuildOutput,
 			role: mgmtPipelineAutomationRole,
 			runOrder: 5,
@@ -361,7 +382,7 @@ export class DeploymentPipeline extends Stack {
 
 		const stage2DeployWebsiteAction = new S3DeployAction({
 			actionName: 'DeployWebsite',
-			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', stage2BucketName),
+			bucket: Bucket.fromBucketName(this, 'Stage2DeployBucket', STAGE_2_BUCKET_NAME),
 			input: websiteBuildOutput,
 			role: mgmtPipelineAutomationRole,
 			runOrder: 5,
@@ -404,6 +425,20 @@ export class DeploymentPipeline extends Stack {
 
 			const teardownCIStage = deploymentPipeline.addStage({
 				actions: [
+					new ManualApprovalAction({
+						actionName: 'Approve',
+						additionalInformation: 'Teardown the ci environment?',
+						role: mgmtPipelineAutomationRole,
+						runOrder: 1,
+					}),
+					new CodeBuildAction({
+						actionName: 'EmptyCiBucket',
+						project: emptyCiBucketsBuild,
+						input: infrastructureSourceOutput,
+						outputs: [],
+						role: mgmtPipelineAutomationRole,
+						runOrder: 1,
+					}),
 					new CloudFormationDeleteStackAction({
 						actionName: 'TeardownClient',
 						adminPermissions: false,

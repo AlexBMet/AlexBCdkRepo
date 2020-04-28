@@ -932,6 +932,63 @@ Object {
             "Actions": Array [
               Object {
                 "ActionTypeId": Object {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "CustomData": "Teardown the ci environment?",
+                },
+                "Name": "Approve",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ProjectName": Object {
+                    "Ref": "EmptyCiBucketBuild88DB8EF6",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "EmptyCiBucket",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
                   "Category": "Deploy",
                   "Owner": "AWS",
                   "Provider": "CloudFormation",
@@ -1155,6 +1212,78 @@ Object {
         "TargetPipelineVersion": 1,
       },
       "Type": "AWS::CodePipeline::Webhook",
+    },
+    "EmptyCiBucketBuild88DB8EF6": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-empty-bucket-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"aws s3 rm s3://\${STAGE_2_BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
@@ -2383,6 +2512,72 @@ Object {
         "TargetPipelineVersion": 1,
       },
       "Type": "AWS::CodePipeline::Webhook",
+    },
+    "EmptyCiBucketBuild88DB8EF6": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-empty-bucket-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"aws s3 rm s3://\${STAGE_2_BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
