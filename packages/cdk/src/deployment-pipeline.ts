@@ -188,7 +188,7 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'echo Assuming PipelineAutomationRole to empty buckets',
-							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)",
+							'TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)',
 							"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')",
 							"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')",
 							"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')",
