@@ -963,6 +963,22 @@ Object {
                   "Version": "1",
                 },
                 "Configuration": Object {
+                  "EnvironmentVariables": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "[{\\"name\\":\\"BUCKET_NAME\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-ci-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}]",
+                      ],
+                    ],
+                  },
                   "ProjectName": Object {
                     "Ref": "EmptyCiBucketBuild88DB8EF6",
                   },
@@ -1100,6 +1116,54 @@ Object {
               },
               Object {
                 "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "EnvironmentVariables": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "[{\\"name\\":\\"BUCKET_NAME\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-dev-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}]",
+                      ],
+                    ],
+                  },
+                  "ProjectName": Object {
+                    "Ref": "EmptyDevBucketBuild5979A143",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "EmptyDevBucket",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 2,
+              },
+              Object {
+                "ActionTypeId": Object {
                   "Category": "Deploy",
                   "Owner": "AWS",
                   "Provider": "CloudFormation",
@@ -1123,7 +1187,7 @@ Object {
                 },
                 "Name": "TeardownClient",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1150,7 +1214,7 @@ Object {
                 },
                 "Name": "TeardownAPILayer",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
               Object {
                 "ActionTypeId": Object {
@@ -1177,7 +1241,7 @@ Object {
                 },
                 "Name": "TeardownDatabase",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 4,
+                "RunOrder": 5,
               },
             ],
             "Name": "DevTeardown",
@@ -1251,8 +1315,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
-        \\"sts=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole) --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \\",
-        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
         \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
         \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
         \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
@@ -1260,7 +1323,7 @@ Object {
         \\"aws configure set aws_secret_access_key '$SAK'\\",
         \\"aws configure set aws_session_token '$ST'\\",
         \\"aws configure set region eu-west-1\\",
-        \\"aws s3 rm s3://\${STAGE_2_BUCKET_NAME} --recursive\\"
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
       ]
     }
   }
@@ -1425,6 +1488,222 @@ Object {
         "Roles": Array [
           Object {
             "Ref": "EmptyCiBucketBuildRole0E42853A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "EmptyDevBucketBuild5979A143": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "ServiceRole": Object {
+          "Fn::GetAtt": Array [
+            "EmptyDevBucketBuildRole54034535",
+            "Arn",
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT_ID}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id '$AKID' \\",
+        \\"aws configure set aws_secret_access_key '$SAK'\\",
+        \\"aws configure set aws_session_token '$ST'\\",
+        \\"aws configure set region eu-west-1\\",
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "EmptyDevBucketBuildRole54034535": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codebuild.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "EmptyDevBucketBuildRoleDefaultPolicy3C73155C": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyDevBucketBuild5979A143",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyDevBucketBuild5979A143",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactBucket7410C9EF",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactBucket7410C9EF",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "FeatureKMSKeyF1C3E2DD",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "EmptyDevBucketBuildRoleDefaultPolicy3C73155C",
+        "Roles": Array [
+          Object {
+            "Ref": "EmptyDevBucketBuildRole54034535",
           },
         ],
       },
@@ -1620,6 +1899,40 @@ Object {
                 "AWS": Object {
                   "Fn::GetAtt": Array [
                     "EmptyCiBucketBuildRole0E42853A",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "EmptyDevBucketBuildRole54034535",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "EmptyDevBucketBuildRole54034535",
                     "Arn",
                   ],
                 },
@@ -2724,8 +3037,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
-        \\"sts=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole) --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \\",
-        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
         \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
         \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
         \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
@@ -2733,7 +3045,7 @@ Object {
         \\"aws configure set aws_secret_access_key '$SAK'\\",
         \\"aws configure set aws_session_token '$ST'\\",
         \\"aws configure set region eu-west-1\\",
-        \\"aws s3 rm s3://\${STAGE_2_BUCKET_NAME} --recursive\\"
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
       ]
     }
   }
@@ -2840,6 +3152,158 @@ Object {
         "Roles": Array [
           Object {
             "Ref": "EmptyCiBucketBuildRole0E42853A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "EmptyDevBucketBuild5979A143": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "ServiceRole": Object {
+          "Fn::GetAtt": Array [
+            "EmptyDevBucketBuildRole54034535",
+            "Arn",
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT_ID}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id '$AKID' \\",
+        \\"aws configure set aws_secret_access_key '$SAK'\\",
+        \\"aws configure set aws_session_token '$ST'\\",
+        \\"aws configure set region eu-west-1\\",
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "EmptyDevBucketBuildRole54034535": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codebuild.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "EmptyDevBucketBuildRoleDefaultPolicy3C73155C": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyDevBucketBuild5979A143",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "EmptyDevBucketBuild5979A143",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "EmptyDevBucketBuildRoleDefaultPolicy3C73155C",
+        "Roles": Array [
+          Object {
+            "Ref": "EmptyDevBucketBuildRole54034535",
           },
         ],
       },
