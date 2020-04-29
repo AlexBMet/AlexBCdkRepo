@@ -971,11 +971,7 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-ci-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"",
-                        Object {
-                          "Ref": "AWS::AccountId",
-                        },
-                        "\\"}]",
+                        "-ci-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"456\\"}]",
                       ],
                     ],
                   },
@@ -1130,11 +1126,7 @@ Object {
                         Object {
                           "Ref": "AWS::Region",
                         },
-                        "-dev-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"",
-                        Object {
-                          "Ref": "AWS::AccountId",
-                        },
-                        "\\"}]",
+                        "-dev-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"123\\"}]",
                       ],
                     ],
                   },
@@ -1315,7 +1307,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
-        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
         \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
         \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
         \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
@@ -1531,7 +1523,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
-        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT_ID}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
         \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
         \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
         \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
@@ -3037,7 +3029,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
-        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
         \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
         \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
         \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
@@ -3189,7 +3181,7 @@ Object {
     \\"build\\": {
       \\"commands\\": [
         \\"echo Assuming PipelineAutomationRole to empty buckets\\",
-        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT_ID}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'\\",
         \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
         \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
         \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",

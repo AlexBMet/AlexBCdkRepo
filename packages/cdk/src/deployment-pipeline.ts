@@ -188,7 +188,7 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'echo Assuming PipelineAutomationRole to empty buckets',
-							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'",
+							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)",
 							"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')",
 							"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')",
 							"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')",
@@ -218,7 +218,7 @@ export class DeploymentPipeline extends Stack {
 					build: {
 						commands: [
 							'echo Assuming PipelineAutomationRole to empty buckets',
-							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'",
+							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'",
 							"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')",
 							"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')",
 							"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')",
@@ -477,7 +477,7 @@ export class DeploymentPipeline extends Stack {
 						input: infrastructureSourceOutput,
 						environmentVariables: {
 							BUCKET_NAME: { value: STAGE_2_BUCKET_NAME },
-							AWS_ACCOUNT: { value: STACK.account },
+							AWS_ACCOUNT: { value: props.ciAccountId },
 						},
 						outputs: [],
 						role: mgmtPipelineAutomationRole,
@@ -528,7 +528,7 @@ export class DeploymentPipeline extends Stack {
 						input: infrastructureSourceOutput,
 						environmentVariables: {
 							BUCKET_NAME: { value: STAGE_1_BUCKET_NAME },
-							AWS_ACCOUNT: { value: STACK.account },
+							AWS_ACCOUNT: { value: props.devAccountId },
 						},
 						outputs: [],
 						role: mgmtPipelineAutomationRole,
