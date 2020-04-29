@@ -51,7 +51,7 @@ export class Client extends Stack {
 			removalPolicy: RemovalPolicy.DESTROY,
 			websiteIndexDocument: 'index.html',
 			websiteErrorDocument: 'error.html',
-			publicReadAccess: true,
+			publicReadAccess: false,
 			cors: [
 				{
 					allowedOrigins: ['*'],
