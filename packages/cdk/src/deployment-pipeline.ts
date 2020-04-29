@@ -201,6 +201,8 @@ export class DeploymentPipeline extends Stack {
 					},
 				},
 			}),
+			projectName: `${PREFIX}-ci-empty-bucket-build`,
+			role: mgmtPipelineAutomationRole,
 		});
 
 		const emptyDevBucketsBuild = new PipelineProject(this, 'EmptyDevBucketBuild', {
@@ -231,6 +233,8 @@ export class DeploymentPipeline extends Stack {
 					},
 				},
 			}),
+			projectName: `${PREFIX}-empty-dev-bucket-build`,
+			role: mgmtPipelineAutomationRole,
 		});
 
 		const websiteBuildOutput = new Artifact('WebsiteBuildOutput');

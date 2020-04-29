@@ -1286,10 +1286,28 @@ Object {
           "PrivilegedMode": false,
           "Type": "LINUX_CONTAINER",
         },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-ci-empty-bucket-build",
+            ],
+          ],
+        },
         "ServiceRole": Object {
-          "Fn::GetAtt": Array [
-            "EmptyCiBucketBuildRole0E42853A",
-            "Arn",
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
           ],
         },
         "Source": Object {
@@ -1331,160 +1349,6 @@ Object {
       },
       "Type": "AWS::CodeBuild::Project",
     },
-    "EmptyCiBucketBuildRole0E42853A": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "codebuild.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "feature",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyCiBucketBuild88DB8EF6",
-                      },
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyCiBucketBuild88DB8EF6",
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::GetAtt": Array [
-                    "ArtifactBucket7410C9EF",
-                    "Arn",
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      Object {
-                        "Fn::GetAtt": Array [
-                          "ArtifactBucket7410C9EF",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "FeatureKMSKeyF1C3E2DD",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "FeatureKMSKeyF1C3E2DD",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12",
-        "Roles": Array [
-          Object {
-            "Ref": "EmptyCiBucketBuildRole0E42853A",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "EmptyDevBucketBuild5979A143": Object {
       "Properties": Object {
         "Artifacts": Object {
@@ -1502,10 +1366,28 @@ Object {
           "PrivilegedMode": false,
           "Type": "LINUX_CONTAINER",
         },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-empty-dev-bucket-build",
+            ],
+          ],
+        },
         "ServiceRole": Object {
-          "Fn::GetAtt": Array [
-            "EmptyDevBucketBuildRole54034535",
-            "Arn",
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
           ],
         },
         "Source": Object {
@@ -1546,160 +1428,6 @@ Object {
         ],
       },
       "Type": "AWS::CodeBuild::Project",
-    },
-    "EmptyDevBucketBuildRole54034535": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "codebuild.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "feature",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "EmptyDevBucketBuildRoleDefaultPolicy3C73155C": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyDevBucketBuild5979A143",
-                      },
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyDevBucketBuild5979A143",
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::GetAtt": Array [
-                    "ArtifactBucket7410C9EF",
-                    "Arn",
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      Object {
-                        "Fn::GetAtt": Array [
-                          "ArtifactBucket7410C9EF",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "FeatureKMSKeyF1C3E2DD",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "FeatureKMSKeyF1C3E2DD",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "EmptyDevBucketBuildRoleDefaultPolicy3C73155C",
-        "Roles": Array [
-          Object {
-            "Ref": "EmptyDevBucketBuildRole54034535",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
@@ -1860,74 +1588,6 @@ Object {
               "Effect": "Allow",
               "Principal": Object {
                 "AWS": "arn:aws:iam::456:role/PipelineAutomationRole",
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::GetAtt": Array [
-                    "EmptyCiBucketBuildRole0E42853A",
-                    "Arn",
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::GetAtt": Array [
-                    "EmptyCiBucketBuildRole0E42853A",
-                    "Arn",
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::GetAtt": Array [
-                    "EmptyDevBucketBuildRole54034535",
-                    "Arn",
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-            Object {
-              "Action": Array [
-                "kms:Decrypt",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::GetAtt": Array [
-                    "EmptyDevBucketBuildRole54034535",
-                    "Arn",
-                  ],
-                },
               },
               "Resource": "*",
             },
@@ -3008,10 +2668,28 @@ Object {
           "PrivilegedMode": false,
           "Type": "LINUX_CONTAINER",
         },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-ci-empty-bucket-build",
+            ],
+          ],
+        },
         "ServiceRole": Object {
-          "Fn::GetAtt": Array [
-            "EmptyCiBucketBuildRole0E42853A",
-            "Arn",
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
           ],
         },
         "Source": Object {
@@ -3053,102 +2731,6 @@ Object {
       },
       "Type": "AWS::CodeBuild::Project",
     },
-    "EmptyCiBucketBuildRole0E42853A": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "codebuild.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "release",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyCiBucketBuild88DB8EF6",
-                      },
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyCiBucketBuild88DB8EF6",
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "EmptyCiBucketBuildRoleDefaultPolicyCC06CA12",
-        "Roles": Array [
-          Object {
-            "Ref": "EmptyCiBucketBuildRole0E42853A",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "EmptyDevBucketBuild5979A143": Object {
       "Properties": Object {
         "Artifacts": Object {
@@ -3160,10 +2742,28 @@ Object {
           "PrivilegedMode": false,
           "Type": "LINUX_CONTAINER",
         },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-empty-dev-bucket-build",
+            ],
+          ],
+        },
         "ServiceRole": Object {
-          "Fn::GetAtt": Array [
-            "EmptyDevBucketBuildRole54034535",
-            "Arn",
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
           ],
         },
         "Source": Object {
@@ -3204,102 +2804,6 @@ Object {
         ],
       },
       "Type": "AWS::CodeBuild::Project",
-    },
-    "EmptyDevBucketBuildRole54034535": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "codebuild.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "Deployment",
-            "Value": "release",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "EmptyDevBucketBuildRoleDefaultPolicy3C73155C": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": Array [
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyDevBucketBuild5979A143",
-                      },
-                    ],
-                  ],
-                },
-                Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":logs:",
-                      Object {
-                        "Ref": "AWS::Region",
-                      },
-                      ":",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":log-group:/aws/codebuild/",
-                      Object {
-                        "Ref": "EmptyDevBucketBuild5979A143",
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "EmptyDevBucketBuildRoleDefaultPolicy3C73155C",
-        "Roles": Array [
-          Object {
-            "Ref": "EmptyDevBucketBuildRole54034535",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
