@@ -187,7 +187,7 @@ export class DeploymentPipeline extends Stack {
 					},
 					build: {
 						commands: [
-							"echo Assuming PipelineAutomationRole to empty buckets",
+							'echo Assuming PipelineAutomationRole to empty buckets',
 							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'",
 							"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')",
 							"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')",
@@ -217,7 +217,7 @@ export class DeploymentPipeline extends Stack {
 					},
 					build: {
 						commands: [
-							"echo Assuming PipelineAutomationRole to empty buckets",
+							'echo Assuming PipelineAutomationRole to empty buckets',
 							"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'",
 							"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')",
 							"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')",
@@ -476,8 +476,8 @@ export class DeploymentPipeline extends Stack {
 						project: emptyCiBucketsBuild,
 						input: infrastructureSourceOutput,
 						environmentVariables: {
-							'BUCKET_NAME': { value: STAGE_2_BUCKET_NAME},
-							'AWS_ACCOUNT': { value: STACK.account}
+							BUCKET_NAME: { value: STAGE_2_BUCKET_NAME },
+							AWS_ACCOUNT: { value: STACK.account },
 						},
 						outputs: [],
 						role: mgmtPipelineAutomationRole,
@@ -527,8 +527,8 @@ export class DeploymentPipeline extends Stack {
 						project: emptyDevBucketsBuild,
 						input: infrastructureSourceOutput,
 						environmentVariables: {
-							'BUCKET_NAME': { value: STAGE_1_BUCKET_NAME},
-							'AWS_ACCOUNT': { value: STACK.account}
+							BUCKET_NAME: { value: STAGE_1_BUCKET_NAME },
+							AWS_ACCOUNT: { value: STACK.account },
 						},
 						outputs: [],
 						role: mgmtPipelineAutomationRole,
