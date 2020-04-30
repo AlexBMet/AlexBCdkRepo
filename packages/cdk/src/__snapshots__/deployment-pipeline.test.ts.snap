@@ -527,6 +527,43 @@ Object {
                 },
                 "RunOrder": 2,
               },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ProjectName": Object {
+                    "Ref": "WebsiteBuildD5A80231",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "BuildWebsite",
+                "OutputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 3,
+              },
             ],
             "Name": "Build",
           },
@@ -613,7 +650,22 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"dev\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"BucketName\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-dev-website-bucket\\",\\"AccountId\\":\\"123\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -637,6 +689,48 @@ Object {
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
                 "RunOrder": 4,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "S3",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-dev-website-bucket",
+                      ],
+                    ],
+                  },
+                  "Extract": "true",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "Name": "DeployWebsite",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 5,
               },
             ],
             "Name": "DeployToDev",
@@ -749,7 +843,22 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"ci\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"BucketName\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-ci-website-bucket\\",\\"AccountId\\":\\"456\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -774,11 +883,122 @@ Object {
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                 "RunOrder": 4,
               },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "S3",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-ci-website-bucket",
+                      ],
+                    ],
+                  },
+                  "Extract": "true",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "Name": "DeployWebsite",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 5,
+              },
             ],
             "Name": "DeployToCI",
           },
           Object {
             "Actions": Array [
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "CustomData": "Teardown the ci environment?",
+                },
+                "Name": "Approve",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 1,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "EnvironmentVariables": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "[{\\"name\\":\\"BUCKET_NAME\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-ci-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"456\\"}]",
+                      ],
+                    ],
+                  },
+                  "ProjectName": Object {
+                    "Ref": "EmptyCiBucketBuild88DB8EF6",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "EmptyCiBucket",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 2,
+              },
               Object {
                 "ActionTypeId": Object {
                   "Category": "Deploy",
@@ -804,7 +1024,7 @@ Object {
                 },
                 "Name": "TeardownClient",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -831,7 +1051,7 @@ Object {
                 },
                 "Name": "TeardownAPILayer",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
               Object {
                 "ActionTypeId": Object {
@@ -858,7 +1078,7 @@ Object {
                 },
                 "Name": "TeardownDatabase",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
-                "RunOrder": 4,
+                "RunOrder": 5,
               },
             ],
             "Name": "CITeardown",
@@ -892,6 +1112,50 @@ Object {
               },
               Object {
                 "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "EnvironmentVariables": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "[{\\"name\\":\\"BUCKET_NAME\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"ghostrider-feature-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-dev-website-bucket\\"},{\\"name\\":\\"AWS_ACCOUNT\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":\\"123\\"}]",
+                      ],
+                    ],
+                  },
+                  "ProjectName": Object {
+                    "Ref": "EmptyDevBucketBuild5979A143",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "EmptyDevBucket",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 2,
+              },
+              Object {
+                "ActionTypeId": Object {
                   "Category": "Deploy",
                   "Owner": "AWS",
                   "Provider": "CloudFormation",
@@ -915,7 +1179,7 @@ Object {
                 },
                 "Name": "TeardownClient",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 2,
+                "RunOrder": 3,
               },
               Object {
                 "ActionTypeId": Object {
@@ -942,7 +1206,7 @@ Object {
                 },
                 "Name": "TeardownAPILayer",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 3,
+                "RunOrder": 4,
               },
               Object {
                 "ActionTypeId": Object {
@@ -969,7 +1233,7 @@ Object {
                 },
                 "Name": "TeardownDatabase",
                 "RoleArn": "arn:aws:iam::123:role/PipelineAutomationRole",
-                "RunOrder": 4,
+                "RunOrder": 5,
               },
             ],
             "Name": "DevTeardown",
@@ -1004,6 +1268,164 @@ Object {
         "TargetPipelineVersion": 1,
       },
       "Type": "AWS::CodePipeline::Webhook",
+    },
+    "EmptyCiBucketBuild88DB8EF6": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-ci-empty-bucket-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id $AKID \\",
+        \\"aws configure set aws_secret_access_key $SAK\\",
+        \\"aws configure set aws_session_token $ST\\",
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "EmptyDevBucketBuild5979A143": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-empty-dev-bucket-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id $AKID \\",
+        \\"aws configure set aws_secret_access_key $SAK\\",
+        \\"aws configure set aws_session_token $ST\\",
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
@@ -1141,6 +1563,28 @@ Object {
               ],
               "Effect": "Allow",
               "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
                 "AWS": "arn:aws:iam::456:role/PipelineAutomationRole",
               },
               "Resource": "*",
@@ -1232,6 +1676,68 @@ Object {
         \\"junit.xml\\"
       ]
     }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "feature",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "WebsiteBuildD5A80231": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_MEDIUM",
+          "Image": "aws/codebuild/standard:3.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-feature-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-website-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"artifacts\\": {
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/website\\",
+    \\"files\\": [
+      \\"index.html\\"
+    ]
   }
 }",
           "Type": "CODEPIPELINE",
@@ -1776,6 +2282,43 @@ Object {
                 },
                 "RunOrder": 2,
               },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "ProjectName": Object {
+                    "Ref": "WebsiteBuildD5A80231",
+                  },
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "SourceOutput",
+                  },
+                ],
+                "Name": "BuildWebsite",
+                "OutputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 3,
+              },
             ],
             "Name": "Build",
           },
@@ -1887,7 +2430,22 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"stg\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"BucketName\\":\\"ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-stg-website-bucket\\",\\"AccountId\\":\\"456\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -1911,6 +2469,48 @@ Object {
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                 "RunOrder": 4,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "S3",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-stg-website-bucket",
+                      ],
+                    ],
+                  },
+                  "Extract": "true",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "Name": "DeployWebsite",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 5,
               },
             ],
             "Name": "DeployToStg",
@@ -2023,7 +2623,22 @@ Object {
                 },
                 "Configuration": Object {
                   "ActionMode": "CREATE_UPDATE",
-                  "ParameterOverrides": "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"UniquePrefix\\":\\"ghostrider\\"}",
+                  "ParameterOverrides": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "{\\"Environment\\":\\"prod\\",\\"ServiceCode\\":\\"SFWRMC\\",\\"ServiceName\\":\\"NSWWS Sign Up\\",\\"ServiceOwner\\":\\"aws-nswws-dis-business@metoffice.gov.uk\\",\\"BucketName\\":\\"ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-prod-website-bucket\\",\\"AccountId\\":\\"789\\",\\"StackAccount\\":\\"",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "\\"}",
+                      ],
+                    ],
+                  },
                   "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                   "StackName": Object {
                     "Fn::Join": Array [
@@ -2047,6 +2662,48 @@ Object {
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                 "RunOrder": 4,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "S3",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-prod-website-bucket",
+                      ],
+                    ],
+                  },
+                  "Extract": "true",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "Name": "DeployWebsite",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 5,
               },
             ],
             "Name": "DeployToProd",
@@ -2081,6 +2738,152 @@ Object {
         "TargetPipelineVersion": 1,
       },
       "Type": "AWS::CodePipeline::Webhook",
+    },
+    "EmptyCiBucketBuild88DB8EF6": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-ci-empty-bucket-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id $AKID \\",
+        \\"aws configure set aws_secret_access_key $SAK\\",
+        \\"aws configure set aws_session_token $ST\\",
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "EmptyDevBucketBuild5979A143": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:1.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-empty-dev-bucket-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"apt-get update\\",
+        \\"apt-get -y install jq\\",
+        \\"apt-get -y install python3-pip\\",
+        \\"pip3 install awscli --upgrade\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"echo Assuming PipelineAutomationRole to empty buckets\\",
+        \\"TEMP_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::\${AWS_ACCOUNT}:role/PipelineAutomationRole --role-session-name AssumePipelineAutomationRole)\\",
+        \\"AKID=$(echo $TEMP_ROLE | jq -r '.Credentials.AccessKeyId')\\",
+        \\"SAK=$(echo $TEMP_ROLE | jq -r '.Credentials.SecretAccessKey')\\",
+        \\"ST=$(echo $TEMP_ROLE | jq -r '.Credentials.SessionToken')\\",
+        \\"aws configure set aws_access_key_id $AKID \\",
+        \\"aws configure set aws_secret_access_key $SAK\\",
+        \\"aws configure set aws_session_token $ST\\",
+        \\"aws s3 rm s3://\${BUCKET_NAME} --recursive\\"
+      ]
+    }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
     },
     "FeatureKMSKeyAlias7ACEBE30": Object {
       "Properties": Object {
@@ -2218,6 +3021,28 @@ Object {
               ],
               "Effect": "Allow",
               "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
                 "AWS": "arn:aws:iam::789:role/PipelineAutomationRole",
               },
               "Resource": "*",
@@ -2309,6 +3134,68 @@ Object {
         \\"junit.xml\\"
       ]
     }
+  }
+}",
+          "Type": "CODEPIPELINE",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "Deployment",
+            "Value": "release",
+          },
+        ],
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "WebsiteBuildD5A80231": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "CODEPIPELINE",
+        },
+        "EncryptionKey": Object {
+          "Fn::GetAtt": Array [
+            "FeatureKMSKeyF1C3E2DD",
+            "Arn",
+          ],
+        },
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_MEDIUM",
+          "Image": "aws/codebuild/standard:3.0",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "Name": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "ghostrider-release-",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              "-website-build",
+            ],
+          ],
+        },
+        "ServiceRole": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:iam::",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":role/PipelineAutomationRole",
+            ],
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"artifacts\\": {
+    \\"base-directory\\": \\"$CODEBUILD_SRC_DIR/packages/website\\",
+    \\"files\\": [
+      \\"index.html\\"
+    ]
   }
 }",
           "Type": "CODEPIPELINE",

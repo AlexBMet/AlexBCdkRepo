@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/assert@^1.33.1":
+"@aws-cdk/assert@1.34.1":
   version "1.34.1"
   resolved "https://registry.yarnpkg.com/@aws-cdk/assert/-/assert-1.34.1.tgz#6414799504dbe5e5b63cd4c76c2e3005fa4f22ce"
   integrity sha512-Z+RXQtaR8sKcNNsYSycW18P1yU73WO19JaHEFDSfR02Wvz14ikPvBBZ6x9OmrwnGg126pCtieNhqIBTptTpPIQ==
@@ -215,7 +215,7 @@
     case "1.6.3"
     constructs "^3.0.2"
 
-"@aws-cdk/aws-codepipeline@1.34.1", "@aws-cdk/aws-codepipeline@^1.34.1":
+"@aws-cdk/aws-codepipeline@1.34.1":
   version "1.34.1"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-codepipeline/-/aws-codepipeline-1.34.1.tgz#f57ed7627a5612028ee4b4b6770ede9ca61b49e5"
   integrity sha512-9RUftya9HR+D9TBVcjGSpBHdpA/8IcYI164Hpqimp03oYpWpRGRh0V7HeWteJX6go27seVVH1FVZKZXUh2t/xQ==
