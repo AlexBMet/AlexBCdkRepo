@@ -2470,6 +2470,48 @@ Object {
                 "RoleArn": "arn:aws:iam::456:role/PipelineAutomationRole",
                 "RunOrder": 4,
               },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "S3",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-stg-website-bucket",
+                      ],
+                    ],
+                  },
+                  "Extract": "true",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "Name": "DeployWebsite",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 5,
+              },
             ],
             "Name": "DeployToStg",
           },
@@ -2620,6 +2662,48 @@ Object {
                 "Name": "DeployClient",
                 "RoleArn": "arn:aws:iam::789:role/PipelineAutomationRole",
                 "RunOrder": 4,
+              },
+              Object {
+                "ActionTypeId": Object {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "S3",
+                  "Version": "1",
+                },
+                "Configuration": Object {
+                  "BucketName": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "ghostrider-release-",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        "-prod-website-bucket",
+                      ],
+                    ],
+                  },
+                  "Extract": "true",
+                },
+                "InputArtifacts": Array [
+                  Object {
+                    "Name": "WebsiteBuildOutput",
+                  },
+                ],
+                "Name": "DeployWebsite",
+                "RoleArn": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
+                "RunOrder": 5,
               },
             ],
             "Name": "DeployToProd",
@@ -2927,6 +3011,28 @@ Object {
               "Effect": "Allow",
               "Principal": Object {
                 "AWS": "arn:aws:iam::456:role/PipelineAutomationRole",
+              },
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:aws:iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":role/PipelineAutomationRole",
+                    ],
+                  ],
+                },
               },
               "Resource": "*",
             },

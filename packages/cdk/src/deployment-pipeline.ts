@@ -579,6 +579,7 @@ export class DeploymentPipeline extends Stack {
 					stage1DeployDatabaseAction,
 					stage1DeployAPILayerAction,
 					stage1DeployClientAction,
+					stage1DeployWebsiteAction,
 				],
 				placement: {
 					justAfter: buildStage,
@@ -595,6 +596,7 @@ export class DeploymentPipeline extends Stack {
 					stage2DeployDatabaseAction,
 					stage2DeployAPILayerAction,
 					stage2DeployClientAction,
+					stage2DeployWebsiteAction,
 				],
 				placement: {
 					justAfter: deployStgStage,
